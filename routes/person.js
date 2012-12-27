@@ -8,10 +8,9 @@ exports.list = function(req, res){
 	res.send("respond with a resource");
 };
 
-exports.make = function( req, res ) {
-	var user = new User({ netID: 'mp3255' });
-	console.log(user.netID) // 'Silence'
-	user.save();
+exports.me = function( req, res ) {
+	console.log( req.user );
+	res.send( 'your profile' );
 }
 
 exports.profile = function(req, res){
