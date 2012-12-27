@@ -83,7 +83,7 @@ passport.use(new GoogleStrategy({
 			if( user == null ) 
 			{
 				var user = new User({
-					netID: 'mp3255',
+					netID: netID,
 					openID: identifier
 				});
 				user.save(function() {
