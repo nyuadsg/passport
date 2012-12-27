@@ -1,9 +1,11 @@
 // load dependencies
 var express = require('express')
-	, routes = require('./routes')
-	, person = require('./routes/person')
 	, http = require('http')
 	, path = require('path');
+var routes = require('./routes')
+	, person = require('./routes/person');
+var passport = require('passport')
+  , GoogleStrategy = require('passport-google').Strategy;
 
 // prepare database
 var mongoose = require('mongoose');
@@ -12,14 +14,10 @@ mongoose.connect(process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
-	// schema for users
-	var userSchema = mongoose.Schema({
-	    netID: String,
-		openID: String
-	});
-
-	var User = mongoose.model('User', userSchema);
 });
+
+// schema for users
+var User = require('./models/user');
 
 // start app server
 var app = express.createServer(express.logger());
@@ -35,9 +33,11 @@ app.configure(function(){
 	app.use(express.methodOverride());
 	app.use(express.cookieParser( process.env.secret ));
 	app.use(express.session({ secret: process.env.secret }));
+	app.use(passport.initialize());
+	app.use(passport.session());  
 	app.use(app.router);
 	app.use(require('stylus').middleware(__dirname + '/public'));
-	app.use(express.static(path.join(__dirname, 'public')));
+	app.use(express.static(__dirname + '/public'));
 });
 
 // --- development
@@ -45,20 +45,16 @@ app.configure('development', function(){
 	app.use(express.errorHandler());
 });
 
-// test user
-// var silence = new User({ net_id: 'mp3255' });
-// console.log(silence.net_id); // 'Silence'
-
-// https://www.google.com/accounts/o8/id?id=AItOawk1WnokPcQgx29RSrjlyYsNriLWnJQJXMk
-
-// silence.save(function (err, fluffy) {
-//   if (err) // TODO handle the error
-//   console.log( 'saved to db' );
-// });
-
 // authentication with passport
-var passport = require('passport')
-  , GoogleStrategy = require('passport-google').Strategy;
+passport.serializeUser(function(user, done) {
+	done(null, user.netID);
+});
+
+passport.deserializeUser(function(id, done) {
+	User.findOne({netID: id}, function(err, user) {
+		done(err, user);
+	});
+});
 
 passport.use(new GoogleStrategy({
     returnURL: 'http://localhost:9080/auth/google/return',
@@ -82,7 +78,31 @@ passport.use(new GoogleStrategy({
 	}
 	if( valid )
 	{
-		console.log( netID );
+		User.findOne({ netID: netID }, function (err, user) {
+			if( user == null ) 
+			{
+				var user = new User({
+					netID: 'mp3255',
+					openID: identifier
+				});
+				user.save(function() {
+					console.log( 'continue' );
+				});
+			}
+			else
+			{
+				if( user.openID == identifier )
+				{
+					done(err, user);
+				}
+				else
+				{
+					console.log( 'mayday' );
+				}
+			}
+			
+		});
+		
 	}
 	else
 	{
@@ -94,9 +114,10 @@ passport.use(new GoogleStrategy({
 // all routes
 app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
 app.get('/auth/google/return', passport.authenticate('google', {
-	successRedirect: '/user/profile',
+	successRedirect: '/person/me',
 	failureRedirect: '/auth/web'
 })); // finish the Google auth loop
+app.get('/person/me', person.me);
 app.get('/person/profile/:netID', person.profile);
 
 // start listening
