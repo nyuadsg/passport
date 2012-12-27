@@ -1,9 +1,10 @@
 // load dependencies
 var express = require('express')
 	, http = require('http')
-	, path = require('path');
-var routes = require('./routes')
-	, person = require('./routes/person');
+	, path = require('path')
+	, routes = require('./routes')
+	, person = require('./routes/person')
+	, auth = require('./routes/auth');
 var passport = require('passport')
   , GoogleStrategy = require('passport-google').Strategy;
 
@@ -23,11 +24,11 @@ db.once('open', function callback () {
 var User = require('./models/user');
 
 // start app server
-var app = express.createServer(express.logger());
+var app = express();
 
 // configure express
 app.configure(function(){
-	app.set('port', process.env.PORT || 3000);
+	app.set('port', process.env.PORT || 5000);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
 	app.use(express.favicon());
@@ -115,6 +116,8 @@ passport.use(new GoogleStrategy({
 ));
 
 // all routes
+app.get('/auth/start', auth.start);
+app.get('/auth/nyu', auth.nyu);
 app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
 app.get('/auth/google/return', passport.authenticate('google', {
 	successRedirect: '/person/me',

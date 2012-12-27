@@ -1,16 +1,14 @@
-// 
-// // Google will redirect the user to this URL after authentication.  Finish
-// // the process by verifying the assertion.  If valid, the user will be
-// // logged in.  Otherwise, authentication has failed.
-// app.get('/auth/google/return', 
-// 	passport.authenticate('google', { successRedirect: '/',
-//                                     failureRedirect: '/login' }));
-
-exports.google = function(req, res){
-	passport.authenticate('google');
-	// res.send("respond with a resource");
+exports.start = function(req, res){
+	// here we redirect to the NYU login and onto the nyu login step here
+	var redirect = 'https://login.nyu.edu/sso/UI/Login?goto=' + 'http://localhost:9080/auth/nyu';
+	res.redirect( redirect );
 };
 
-// exports.list = function(req, res){
-// 	res.send("respond with a resource");
-// };
+exports.nyu = function(req, res){
+	// this intermediary step uses a frame to ensure the NYU token has been passed along to Google
+	// it then redirects, via Javascript, to the Google authentication step
+	res.render("auth_nyu", {
+		title: "Authentication with NYU",
+		next: 'http://localhost:9080/auth/google'
+	});
+};

@@ -1,0 +1,11 @@
+extends layout
+
+block scripts
+	script
+		setTimeout("location.href = '#{next}';",1500);
+
+block content
+	h1= title
+	p= 'Redirecting...'
+	div#google-frame
+		iframe#gcontacts(src='https://www.google.com/contacts/a/nyu.edu')
