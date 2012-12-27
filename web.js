@@ -1,4 +1,6 @@
+// load dependencies
 var express = require('express');
+var request = require('request');
 
 // prepare database
 var mongoose = require('mongoose');
@@ -18,13 +20,15 @@ var userSchema = mongoose.Schema({
 var User = mongoose.model('User', userSchema);
 
 // test user
-var silence = new User({ net_id: 'mp3255' });
-console.log(silence.net_id); // 'Silence'
+// var silence = new User({ net_id: 'mp3255' });
+// console.log(silence.net_id); // 'Silence'
 
-silence.save(function (err, fluffy) {
-  if (err) // TODO handle the error
-  console.log( 'saved to db' );
-});
+// https://www.google.com/accounts/o8/id?id=AItOawk1WnokPcQgx29RSrjlyYsNriLWnJQJXMk
+
+// silence.save(function (err, fluffy) {
+//   if (err) // TODO handle the error
+//   console.log( 'saved to db' );
+// });
 
 // authentication with passport
 var passport = require('passport')
@@ -36,27 +40,23 @@ passport.use(new GoogleStrategy({
   },
   function(identifier, profile, done) {
 	// ensure they are actually an NYU user
-	valid = false;
+	var valid = false;
+	var pattern=/(\w+)@nyu.edu/i;
+	
 	for (var i=0; i<profile.emails.length; i++)
 	{
 		// address is from NYU
-		var pattern=/\w+@nyu.edu/i;
-		if( profile.emails[i].value.match(pattern) == profile.emails[i].value )
-		{
+		match = profile.emails[i].value.match(pattern);
+				
+		if( match != null )
+		{			
+			netID = match[1];
 			valid = true;
 		}
 	}
 	if( valid )
 	{
-		http.get({
-		  host: '',
-		  port: 80,
-		  path: '/index.html'
-		}, function(res) {
-		  console.log("Got response: " + res.statusCode);
-		}).on('error', function(e) {
-		  console.log("Got error: " + e.message);
-		});
+		console.log( netID );
 	}
 	else
 	{
