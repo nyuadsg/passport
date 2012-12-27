@@ -1,7 +1,7 @@
 // load dependencies
 var express = require('express')
 	, routes = require('./routes')
-	, user = require('./routes/user')
+	, person = require('./routes/person')
 	, http = require('http')
 	, path = require('path');
 
@@ -12,9 +12,14 @@ mongoose.connect(process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
-  // yay!
-});
+	// schema for users
+	var userSchema = mongoose.Schema({
+	    netID: String,
+		openID: String
+	});
 
+	var User = mongoose.model('User', userSchema);
+});
 
 // start app server
 var app = express.createServer(express.logger());
@@ -39,13 +44,6 @@ app.configure(function(){
 app.configure('development', function(){
 	app.use(express.errorHandler());
 });
-
-// schema for users
-var userSchema = mongoose.Schema({
-    netID: String,
-	openID: String
-});
-var User = mongoose.model('User', userSchema);
 
 // test user
 // var silence = new User({ net_id: 'mp3255' });
@@ -93,17 +91,13 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-// Redirect the user to Google for authentication.  When complete, Google
-// will redirect the user back to the application at
-//     /auth/google/return
-app.get('/auth/google', passport.authenticate('google'));
-
-// Google will redirect the user to this URL after authentication.  Finish
-// the process by verifying the assertion.  If valid, the user will be
-// logged in.  Otherwise, authentication has failed.
-app.get('/auth/google/return', 
-	passport.authenticate('google', { successRedirect: '/',
-                                    failureRedirect: '/login' }));
+// all routes
+app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
+app.get('/auth/google/return', passport.authenticate('google', {
+	successRedirect: '/user/profile',
+	failureRedirect: '/auth/web'
+})); // finish the Google auth loop
+app.get('/person/profile/:netID', person.profile);
 
 // start listening
 var port = process.env.PORT || 5000;
