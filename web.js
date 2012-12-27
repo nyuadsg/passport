@@ -1,6 +1,9 @@
 // load dependencies
-var express = require('express');
-var request = require('request');
+var express = require('express')
+	, routes = require('./routes')
+	, user = require('./routes/user')
+	, http = require('http')
+	, path = require('path');
 
 // prepare database
 var mongoose = require('mongoose');
@@ -10,6 +13,31 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
   // yay!
+});
+
+
+// start app server
+var app = express.createServer(express.logger());
+
+// configure express
+app.configure(function(){
+	app.set('port', process.env.PORT || 3000);
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
+	app.use(express.favicon());
+	app.use(express.logger('dev'));
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
+	app.use(express.cookieParser( process.env.secret ));
+	app.use(express.session({ secret: process.env.secret }));
+	app.use(app.router);
+	app.use(require('stylus').middleware(__dirname + '/public'));
+	app.use(express.static(path.join(__dirname, 'public')));
+});
+
+// --- development
+app.configure('development', function(){
+	app.use(express.errorHandler());
 });
 
 // schema for users
@@ -64,9 +92,6 @@ passport.use(new GoogleStrategy({
 	}
   }
 ));
-
-// start app server
-var app = express.createServer(express.logger());
 
 // Redirect the user to Google for authentication.  When complete, Google
 // will redirect the user back to the application at
