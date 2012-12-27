@@ -9,8 +9,7 @@ exports.list = function(req, res){
 };
 
 exports.me = function( req, res ) {
-	console.log( req.user );
-	res.send( 'your profile' );
+	res.send( 'your net ID is' + req.user.netID );
 }
 
 exports.profile = function(req, res){
