@@ -8,9 +8,6 @@ var express = require('express')
 var passport = require('passport')
   , GoogleStrategy = require('passport-google').Strategy;
 
-// base URL
-var baseURL = process.env.base_url;
-
 // prepare database
 var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/test');
@@ -61,8 +58,8 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new GoogleStrategy({
-	returnURL: baseURL + '/auth/google/return',
-	realm: baseURL
+	returnURL: process.env.base_url + '/auth/google/return',
+	realm: process.env.base_url
   },
   function(identifier, profile, done) {
 	// ensure they are actually an NYU user
