@@ -2,7 +2,12 @@
 	"name": "passport",
 	"version": "0.0.1",
 	"dependencies": {
-		"express": "2.5.x"
+		"express": "2.5.x",
+		"mongodb": "*",
+		"mongoose": "*",
+		"passport": "*",
+		"passport-google": "*",
+		"request": "*"
 	},
 	"engines": {
 		"node": "0.8.x",
