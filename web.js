@@ -9,7 +9,7 @@ var passport = require('passport')
   , GoogleStrategy = require('passport-google').Strategy;
 
 // base URL
-var baseURL = process.env.base_url || 'http://localhost:9080';
+var baseURL = process.env.base_url;
 
 // prepare database
 var mongoose = require('mongoose');
