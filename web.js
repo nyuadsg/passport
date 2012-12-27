@@ -60,8 +60,8 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new GoogleStrategy({
-    returnURL: baseURL + '/auth/google/return',
-    realm: baseURL
+	returnURL: baseURL + '/auth/google/return',
+	realm: baseURL
   },
   function(identifier, profile, done) {
 	// ensure they are actually an NYU user
