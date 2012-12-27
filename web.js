@@ -87,7 +87,7 @@ passport.use(new GoogleStrategy({
 					openID: identifier
 				});
 				user.save(function() {
-					console.log( 'continue' );
+					done(err, user);
 				});
 			}
 			else
