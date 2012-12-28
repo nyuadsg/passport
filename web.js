@@ -83,7 +83,7 @@ passport.use(new GoogleStrategy({
 			if( user == null ) 
 			{
 				var user = new User({
-					netID: netID,
+					netID: netIDs,
 					openID: identifier
 				});
 				user.save(function() {
@@ -113,6 +113,10 @@ passport.use(new GoogleStrategy({
 ));
 
 // all routes
+app.get('/', function(req,res) {
+	console.log( 'bob' );
+	res.send('bobby died last night; ddid you notice? Does it work yet? NOW? 1 more try');
+});
 app.get('/auth/start', auth.start);
 app.get('/auth/nyu', auth.nyu);
 app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
