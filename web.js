@@ -21,6 +21,8 @@ db.once('open', function callback () {
 // load models
 var User = require('./models/user');
 var AuthCode = require('./models/authcode');
+var Token = require('./models/token');
+var Client = require('./models/clients');
 
 // start app server
 var app = express();
@@ -113,9 +115,6 @@ passport.use(new GoogleStrategy({
 	}
   }
 ));
-
-// oauth server
-var server = oauth2orize.createServer();
 
 // all routes
 app.get('/', function(req,res) {
