@@ -6,6 +6,4 @@ var userSchema = mongoose.Schema({
 	openID: String
 });
 
-console.log( 'hoim' );
-
 var User = module.exports = mongoose.model('User', userSchema);

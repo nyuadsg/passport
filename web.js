@@ -2,11 +2,12 @@
 var express = require('express')
 	, http = require('http')
 	, path = require('path')
-	, routes = require('./routes')
-	, person = require('./routes/person')
-	, auth = require('./routes/auth');
 var passport = require('passport')
   , GoogleStrategy = require('passport-google').Strategy;
+var routes = require('./routes')
+	, person = require('./routes/person')
+	, oauth = require('./routes/oauth')
+	, auth = require('./routes/auth');
 
 // prepare database
 var mongoose = require('mongoose');
@@ -17,8 +18,9 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
 });
 
-// schema for users
+// load models
 var User = require('./models/user');
+var AuthCode = require('./models/authcode');
 
 // start app server
 var app = express();
@@ -111,6 +113,9 @@ passport.use(new GoogleStrategy({
 	}
   }
 ));
+
+// oauth server
+var server = oauth2orize.createServer();
 
 // all routes
 app.get('/', function(req,res) {
