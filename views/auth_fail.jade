@@ -1,0 +1,7 @@
+extends layout
+
+block content
+	h1= title
+	p= 'Your login attempt failed. When selecting a Google account, please be sure to select your NYU account.'
+	div#again
+		a(href='#{next}') Try again

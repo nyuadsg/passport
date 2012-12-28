@@ -98,7 +98,7 @@ passport.use(new GoogleStrategy({
 				}
 				else
 				{
-					console.log( 'mayday' );
+					done( null, false );
 				}
 			}
 			
@@ -107,7 +107,7 @@ passport.use(new GoogleStrategy({
 	}
 	else
 	{
-		done( 'salam', false );
+		done( null, false );
 	}
   }
 ));
@@ -118,11 +118,12 @@ app.get('/', function(req,res) {
 	res.send('bobby died last night; ddid you notice? Does it work yet? NOW? 1 more try');
 });
 app.get('/auth/start', auth.start);
+app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
 app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
 app.get('/auth/google/return', passport.authenticate('google', {
 	successRedirect: '/person/me',
-	failureRedirect: '/auth/web'
+	failureRedirect: '/auth/fail'
 })); // finish the Google auth loop
 app.get('/person/me', person.me);
 app.get('/person/profile/:netID', person.profile);
