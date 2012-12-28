@@ -9,7 +9,14 @@ exports.list = function(req, res){
 };
 
 exports.me = function( req, res ) {
-	res.send( 'your net ID is' + req.user.netID );
+	if( req.user == undefined )
+	{
+		res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + '/person/me' );
+	}
+	else
+	{
+		res.send( 'your net ID is' + req.user.netID );
+	}
 }
 
 exports.profile = function(req, res){

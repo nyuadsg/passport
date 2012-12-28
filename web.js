@@ -122,9 +122,10 @@ app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
 app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
 app.get('/auth/google/return', passport.authenticate('google', {
-	successRedirect: '/person/me',
+	successRedirect: '/auth/finish',
 	failureRedirect: '/auth/fail'
 })); // finish the Google auth loop
+app.get('/auth/finish', auth.finish);
 app.get('/person/me', person.me);
 app.get('/person/profile/:netID', person.profile);
 
