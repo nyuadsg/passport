@@ -9,6 +9,7 @@
 		"passport-google": "*",
 		"jade": "*",
 		"stylus": "*",
+		"connect-ensure-login": "0.1.x",
 		"oauth2orize": "*"
 	},
 	"engines": {

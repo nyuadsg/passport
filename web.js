@@ -15,8 +15,7 @@ mongoose.connect(process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function callback () {
-});
+db.once('open', function callback () {});
 
 // load models
 var User = require('./models/user');
@@ -87,7 +86,7 @@ passport.use(new GoogleStrategy({
 			if( user == null ) 
 			{
 				var user = new User({
-					netID: netIDs,
+					netID: netID,
 					openID: identifier
 				});
 				user.save(function() {
@@ -121,6 +120,7 @@ app.get('/', function(req,res) {
 	console.log( 'bob' );
 	res.send('bobby died last night; ddid you notice? Does it work yet? NOW? 1 more try');
 });
+// -- authorization flow
 app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
@@ -130,8 +130,14 @@ app.get('/auth/google/return', passport.authenticate('google', {
 	failureRedirect: '/auth/fail'
 })); // finish the Google auth loop
 app.get('/auth/finish', auth.finish);
+// -- profiles
 app.get('/person/me', person.me);
 app.get('/person/profile/:netID', person.profile);
+// -- oauth
+app.get('/visa/oauth/authorize', oauth.authorization);
+app.post('/visa/oauth/decision', oauth.decision);
+app.post('/visa/oauth/token', oauth.token);
+
 
 // start listening
 var port = process.env.PORT || 5000;

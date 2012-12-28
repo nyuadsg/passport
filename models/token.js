@@ -2,6 +2,7 @@
 var mongoose = require('mongoose');
 
 var tokenSchema = mongoose.Schema({
+	token: String,
 	clientID: Number,
 	netID: String
 });
