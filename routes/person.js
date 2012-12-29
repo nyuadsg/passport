@@ -16,7 +16,7 @@ exports.me = function( req, res ) {
 	}
 	else
 	{
-		res.send( 'your net ID is' + req.user.netID );
+		res.send( 'Hello, ' + req.user.name + '. Your netID is ' + req.user.netID );
 	}
 }
 

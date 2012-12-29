@@ -87,7 +87,9 @@ passport.use(new GoogleStrategy({
 			{
 				var user = new User({
 					netID: netID,
-					openID: identifier
+					openID: identifier,
+					givenName: profile.name.givenName,
+					familyName: profile.name.familyName,
 				});
 				user.save(function() {
 					done(err, user);
