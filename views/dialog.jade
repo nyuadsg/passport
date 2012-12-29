@@ -1,0 +1,10 @@
+extends layout
+
+block content
+	h1= title
+	p <strong>#{Client.name}</strong> is requesting access to your account.
+	h2 Do you approve?
+	form(action="/visa/oauth/decision", method="post")
+		input(name="transaction_id", type="hidden", value=Transaction)
+		input(type="submit", value="Allow", id="allow")
+		input(type="submit", value="Deny", name="cancel", id="deny")

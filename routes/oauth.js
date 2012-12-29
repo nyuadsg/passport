@@ -5,6 +5,8 @@ var oauth2orize = require('oauth2orize')
 	, login = require('../login')
 	, utils = require('../utils');
 
+var express = require('express')
+
 // models
 var User = require('../models/user');
 var AuthCode = require('../models/authcode');
@@ -28,10 +30,12 @@ var server = oauth2orize.createServer();
 // the client by ID from the database.
 
 server.serializeClient(function(client, done) {
+	// console.log( client );
 	return done(null, client.id);
 });
 
 server.deserializeClient(function(id, done) {
+	// return done( false );
 	Client.find(id, function(err, client) {
 		if (err) { return done(err); }
 		return done(null, client);
@@ -52,7 +56,7 @@ server.deserializeClient(function(id, done) {
 // // the application.  The application issues a code, which is bound to these
 // // values, and will be exchanged for an access token.
 // 
-server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {	
+server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
 	var code = new AuthCode({
 		code: utils.uid(16),
 		clientID: client.id,
@@ -61,7 +65,7 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 	});
 	code.save(function(err) {
 		if (err) { return done(err); }
-		done(null, code);
+		done(null, code.code);
 	});
 }));
 
@@ -74,17 +78,17 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, done) {
 	AuthCode.find({code: code}, function(err, authCode) {
 		if (err) { return done(err); }
-		if (client.id !== authCode.clientID) { return done(null, false); }
-		if (redirectURI !== authCode.redirectURI) { return done(null, false); }
-
+		// if (client.id !== authCode.clientID) { return done(null, false); } // skip checks (in the future, we really need to )
+		// if (redirectURI !== authCode.redirectURI) { return done(null, false); }
+		
 		var token = new Token({
 			token: utils.uid(256),
-			clientID: client.id,
+			clientID: authCode.id,
 			netID: authCode.netID,
 		});
 		token.save(function(err) {
 			if (err) { return done(err); }
-			done(null, token);
+			done(null, token.token);
 		});
 		
 	});
@@ -107,6 +111,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 // first, and rendering the `dialog` view. 
 
 exports.authorization = [
+	// login.ensure,
 	server.authorization(function(clientID, redirectURI, done) {
 			Client.findByClientId(clientID, function(err, client) {
 				if (err) { return done(err); }
@@ -118,7 +123,12 @@ exports.authorization = [
 			});
 		}),
 	function(req, res){
-		res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
+		res.render("dialog", {
+			title: "Access Authorization",
+			Client: req.oauth2.client,
+			Transaction: req.oauth2.transactionID
+		});
+		// res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
 	}
 ]
 
@@ -130,6 +140,10 @@ exports.authorization = [
 // a response.
 
 exports.decision = [
+	function(res, req, next) {
+		console.log( req.user );
+		next();
+	},
 	server.decision()
 ]
 
@@ -145,3 +159,7 @@ exports.token = [
 	server.token(),
 	server.errorHandler()
 ]
+// 
+// exports.token= function( req, res ) {
+// 	console.log( req );
+// }
