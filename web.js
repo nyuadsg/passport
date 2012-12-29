@@ -36,7 +36,7 @@ app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.cookieParser( process.env.secret ));
-	app.use(express.session({ secret: process.env.secret }));
+	app.use(express.session({ key: 'passport.sess', secret: process.env.secret }));
 	app.use(passport.initialize());
 	app.use(passport.session());  
 	app.use(app.router);
@@ -104,7 +104,6 @@ passport.use(new GoogleStrategy({
 					done( null, false );
 				}
 			}
-			
 		});
 		
 	}

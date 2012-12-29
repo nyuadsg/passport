@@ -5,8 +5,6 @@ var oauth2orize = require('oauth2orize')
 	, login = require('../login')
 	, utils = require('../utils');
 
-var express = require('express')
-
 // models
 var User = require('../models/user');
 var AuthCode = require('../models/authcode');
@@ -111,7 +109,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 // first, and rendering the `dialog` view. 
 
 exports.authorization = [
-	// login.ensure,
+	login.ensure,
 	server.authorization(function(clientID, redirectURI, done) {
 			Client.findByClientId(clientID, function(err, client) {
 				if (err) { return done(err); }
@@ -140,10 +138,10 @@ exports.authorization = [
 // a response.
 
 exports.decision = [
-	function(res, req, next) {
-		console.log( req.user );
-		next();
-	},
+	// function(res, req, next) {
+	// 	console.log( req.user );
+	// 	next();
+	// },
 	server.decision()
 ]
 
