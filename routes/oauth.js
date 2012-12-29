@@ -74,15 +74,15 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 // // code.
 // 
 server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, done) {
-	AuthCode.find({code: code}, function(err, authCode) {
+	AuthCode.findOne({code: code}, function(err, authCode) {
 		if (err) { return done(err); }
 		// if (client.id !== authCode.clientID) { return done(null, false); } // skip checks (in the future, we really need to )
 		// if (redirectURI !== authCode.redirectURI) { return done(null, false); }
-		
+				
 		var token = new Token({
 			token: utils.uid(256),
-			clientID: authCode.id,
-			netID: authCode.netID,
+			clientID: authCode.clientID,
+			netID: authCode.netID
 		});
 		token.save(function(err) {
 			if (err) { return done(err); }

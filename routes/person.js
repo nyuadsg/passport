@@ -1,4 +1,5 @@
 var User = require('../models/user');
+var api = require('../api');
 
 /*
  * GET users listing.
@@ -28,3 +29,13 @@ exports.profile = function(req, res){
 		
 	// res.send("netID: bob");
 };
+
+exports.api = {
+	me: [
+		api.passport.authenticate('bearer', { session: false }),
+		function( req, res ) {
+			api.respond( res, {
+				netID: req.user.netID
+			});
+		}]
+}

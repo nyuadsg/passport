@@ -8,6 +8,7 @@
 		"mongoose": "*",
 		"passport": "*",
 		"passport-google": "*",
+		"passport-http-bearer": "*",
 		"stylus": "*",
 		"connect-ensure-login": "0.1.x",
 		"oauth2orize": "*"

@@ -136,7 +136,8 @@ app.get('/person/profile/:netID', person.profile);
 app.get('/visa/oauth/authorize', oauth.authorization);
 app.post('/visa/oauth/decision', oauth.decision);
 app.post('/visa/oauth/token', oauth.token);
-
+// -- api
+app.get('/visa/use/info/me', person.api.me);
 
 // start listening
 var port = process.env.PORT || 5000;
