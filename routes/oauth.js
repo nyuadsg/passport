@@ -36,9 +36,9 @@ server.serializeClient(function(client, done) {
 
 server.deserializeClient(function(id, done) {
 	// return done( false );
+	console.log( 'ID: ' + id );
 	Client.findOne({id: id}, function(err, client) {
 		if (err) { return done(err); }
-		console.log( client );
 		return done(null, client);
 	});
 });
