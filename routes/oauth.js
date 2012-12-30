@@ -31,7 +31,7 @@ var server = oauth2orize.createServer();
 // the client by ID from the database.
 
 server.serializeClient(function(client, done) {
-	// console.log( client );
+	console.log( client );
 	return done(null, client.id);
 });
 
