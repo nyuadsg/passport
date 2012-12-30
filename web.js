@@ -79,7 +79,6 @@ passport.use(new GoogleStrategy({
 		{			
 			netID = match[1];
 			valid = true;
-			console.log( netID );
 		}
 	}
 	if( valid )
