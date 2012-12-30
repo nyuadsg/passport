@@ -70,6 +70,8 @@ passport.use(new GoogleStrategy({
 	var valid = false;
 	var pattern=/(\w+)@nyu.edu/i;
 	
+	console.log( profile );
+	
 	for (var i=0; i<profile.emails.length; i++)
 	{
 		// address is from NYU
