@@ -69,9 +69,7 @@ passport.use(new GoogleStrategy({
 	// ensure they are actually an NYU user
 	var valid = false;
 	var pattern=/(\w+)@nyu.edu/i;
-	
-	console.log( profile );
-	
+		
 	for (var i=0; i<profile.emails.length; i++)
 	{
 		// address is from NYU
@@ -81,6 +79,7 @@ passport.use(new GoogleStrategy({
 		{			
 			netID = match[1];
 			valid = true;
+			console.log( netID );
 		}
 	}
 	if( valid )
