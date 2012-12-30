@@ -5,6 +5,7 @@ var express = require('express')
 var passport = require('passport')
   , GoogleStrategy = require('passport-google').Strategy;
 var routes = require('./routes')
+	, about = require('./routes/about')
 	, person = require('./routes/person')
 	, oauth = require('./routes/oauth')
 	, auth = require('./routes/auth');
@@ -117,9 +118,7 @@ passport.use(new GoogleStrategy({
 ));
 
 // all routes
-app.get('/', function(req,res) {
-	res.send('bobby died last night; ddid you notice? Does it work yet? NOW? 1 more try');
-});
+app.get('/', about.passport);
 // -- authorization flow
 app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
