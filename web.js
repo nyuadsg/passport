@@ -118,7 +118,6 @@ passport.use(new GoogleStrategy({
 
 // all routes
 app.get('/', function(req,res) {
-	console.log( 'bob' );
 	res.send('bobby died last night; ddid you notice? Does it work yet? NOW? 1 more try');
 });
 // -- authorization flow

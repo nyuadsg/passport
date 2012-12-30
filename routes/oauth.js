@@ -4,6 +4,9 @@
 var oauth2orize = require('oauth2orize')
 	, login = require('../login')
 	, utils = require('../utils');
+	
+// api
+var api = require('../api');
 
 // models
 var User = require('../models/user');
@@ -34,7 +37,7 @@ server.serializeClient(function(client, done) {
 
 server.deserializeClient(function(id, done) {
 	// return done( false );
-	Client.find(id, function(err, client) {
+	Client.findOne({id: id}, function(err, client) {
 		if (err) { return done(err); }
 		return done(null, client);
 	});
@@ -54,7 +57,7 @@ server.deserializeClient(function(id, done) {
 // // the application.  The application issues a code, which is bound to these
 // // values, and will be exchanged for an access token.
 // 
-server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
+server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {	
 	var code = new AuthCode({
 		code: utils.uid(16),
 		clientID: client.id,
@@ -111,7 +114,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 exports.authorization = [
 	login.ensure,
 	server.authorization(function(clientID, redirectURI, done) {
-			Client.findByClientId(clientID, function(err, client) {
+			Client.findOne({clientID: clientID}, function(err, client) {
 				if (err) { return done(err); }
 				// WARNING: For security purposes, it is highly advisable to check that
 				//          redirectURI provided by the client matches one registered with
@@ -124,7 +127,9 @@ exports.authorization = [
 		res.render("dialog", {
 			title: "Access Authorization",
 			Client: req.oauth2.client,
-			Transaction: req.oauth2.transactionID
+			Scopes: req.oauth2.client.scopes,
+			Transaction: req.oauth2.transactionID,
+			api: api
 		});
 		// res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
 	}

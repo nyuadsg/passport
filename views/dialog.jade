@@ -2,8 +2,10 @@ extends layout
 
 block content
 	h1= title
-	p <strong>#{Client.name}</strong> is requesting access to your account.
-	h2 Do you approve?
+	p <strong>#{Client.name}</strong> is requesting access to your account. Do you allow them to do the following?
+	ul#scopes
+		each scope in Scopes
+			li=api.scope_name( scope )
 	form(action="/visa/oauth/decision", method="post")
 		input(name="transaction_id", type="hidden", value=Transaction)
 		input(type="submit", value="Allow", id="allow")

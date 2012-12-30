@@ -34,8 +34,10 @@ exports.api = {
 	me: [
 		api.passport.authenticate('bearer', { session: false }),
 		function( req, res ) {
-			api.respond( res, {
-				netID: req.user.netID
-			});
+			profile = {};
+			if( api.can( req.authInfo.scopes, 'user.me.netID' ) ) {
+				profile.netID = req.user.netID
+			}
+			api.respond( res, profile);
 		}]
 }
