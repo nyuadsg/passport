@@ -2,14 +2,11 @@
 var mongoose = require('mongoose');
 
 var userSchema = mongoose.Schema({
-    netID: String,
+	netID: String,
 	openID: String,
-	givenName: String,
-	familyName: String
-});
-
-userSchema.virtual('name').get(function () {
-	return this.givenName + ' ' + this.familyName;
+	"class": Number,
+	school: String,
+	"name": String
 });
 
 var User = module.exports = mongoose.model('User', userSchema);

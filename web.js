@@ -12,7 +12,7 @@ var routes = require('./routes')
 
 // prepare database
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/test');
+mongoose.connect(process.env.MONGOURL || process.env.MONGOLAB_URI || process.env.MONGOHQ_URL);
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -66,54 +66,65 @@ passport.use(new GoogleStrategy({
 	realm: process.env.base_url
   },
   function(identifier, profile, done) {
-	// ensure they are actually an NYU user
-	var valid = false;
-	var pattern=/(\w+)@nyu.edu/i;
+		// ensure they are actually an NYU user
+		var valid = false;
+		var pattern=/(\w+)@nyu.edu/i;
 		
-	for (var i=0; i<profile.emails.length; i++)
-	{
-		// address is from NYU
-		match = profile.emails[i].value.match(pattern);
+		for (var i=0; i<profile.emails.length; i++)
+		{
+			// address is from NYU
+			match = profile.emails[i].value.match(pattern);
 				
-		if( match != null )
-		{			
-			netID = match[1];
-			valid = true;
-		}
-	}
-	if( valid )
-	{
-		User.findOne({ netID: netID }, function (err, user) {
-			if( user == null ) 
-			{
-				var user = new User({
-					netID: netID,
-					openID: identifier,
-					givenName: profile.name.givenName,
-					familyName: profile.name.familyName,
-				});
-				user.save(function() {
-					done(err, user);
-				});
+			if( match != null )
+			{			
+				netID = match[1];
+				valid = true;
 			}
-			else
-			{
-				if( user.openID == identifier )
+		}
+		if( valid )
+		{
+			User.findOne({ netID: netID }, function (err, user) {
+				if( user == null ) 
 				{
-					done(err, user);
+					done( null, false );
+					// var user = new User({
+					// 	netID: netID,
+					// 	openID: identifier,
+					// 	givenName: profile.name.givenName,
+					// 	familyName: profile.name.familyName,
+					// });
+					// user.save(function() {
+					// 	done(err, user);
+					// });
 				}
 				else
 				{
-					done( null, false );
+					// we should possibly auth with openID
+					
+					// We should fill in names if people don't have them					
+					// if( user.name == undefined )
+					// 					{
+					// 						user.update({
+					// 							openID: identifier,
+					// 							"name": profile.name.givenName + " " + profile.name.familyName
+					// 						});
+					// 					}
+					// 					else
+					// 					{
+					// 						user.update({
+					// 							openID: identifier
+					// 						});
+					// 					}					
+					
+					done(err, user);
 				}
-			}
-		});
+			});
 		
-	}
-	else
-	{
-		done( null, false );
-	}
+		}
+		else
+		{
+			done( null, false );
+		}
   }
 ));
 

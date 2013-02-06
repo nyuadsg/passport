@@ -16,7 +16,7 @@ exports.me = function( req, res ) {
 	}
 	else
 	{
-		res.send( 'Hello, ' + req.user.name + '. Your netID is ' + req.user.netID );
+		res.send( 'Your netID is ' + req.user.netID + ' and you are in the class of ' + req.user.class );
 	}
 }
 
@@ -37,6 +37,9 @@ exports.api = {
 			profile = {};
 			if( api.can( req.authInfo.scopes, 'user.me.netID' ) ) {
 				profile.netID = req.user.netID
+			}
+			if( api.can( req.authInfo.scopes, 'user.me.class' ) ) {
+				profile.class = req.user.class
 			}
 			api.respond( res, profile);
 		}]
