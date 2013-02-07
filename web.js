@@ -3,7 +3,7 @@ var express = require('express')
 	, http = require('http')
 	, path = require('path')
 var passport = require('passport')
-  , GoogleStrategy = require('passport-google').Strategy;
+  , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var routes = require('./routes')
 	, about = require('./routes/about')
 	, person = require('./routes/person')
@@ -61,14 +61,18 @@ passport.deserializeUser(function(id, done) {
 	});
 });
 
+
 passport.use(new GoogleStrategy({
-	returnURL: process.env.base_url + '/auth/google/return',
-	realm: process.env.base_url
+    clientID: process.env.GOOGLE_ID,
+    clientSecret: process.env.GOOGLE_SECRET,
+    callbackURL: process.env.base_url + '/auth/google/return'
   },
-  function(identifier, profile, done) {
-		// ensure they are actually an NYU user
+  function(accessToken, refreshToken, profile, done) {
+    // ensure they are actually an NYU user
 		var valid = false;
 		var pattern=/(\w+)@nyu.edu/i;
+		
+		console.log( profile );
 		
 		for (var i=0; i<profile.emails.length; i++)
 		{
@@ -134,7 +138,10 @@ app.get('/', about.passport);
 app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
-app.get('/auth/google', passport.authenticate('google')); // Redirect the user to Google for authentication
+app.get('/auth/google', passport.authenticate('google', {
+	scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+	hd: 'nyu.edu'
+}));
 app.get('/auth/google/return', passport.authenticate('google', {
 	successRedirect: '/auth/finish',
 	failureRedirect: '/auth/fail'
@@ -149,6 +156,8 @@ app.post('/visa/oauth/decision', oauth.decision);
 app.post('/visa/oauth/token', oauth.token);
 // -- api
 app.get('/visa/use/info/me', person.api.me);
+
+
 
 // start listening
 var port = process.env.PORT || 5000;

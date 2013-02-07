@@ -7,6 +7,7 @@ exports.start = function(req, res){
 		
 	// here we redirect to the NYU login and onto the nyu login step here
 	var redirect = 'https://login.nyu.edu/sso/UI/Login?goto=' + process.env.base_url + '/auth/nyu';
+	redirect = process.env.base_url + '/auth/nyu';
 	res.redirect( redirect );
 };
 

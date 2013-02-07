@@ -7,7 +7,7 @@
 		"mongodb": "*",
 		"mongoose": "*",
 		"passport": "*",
-		"passport-google": "*",
+		"passport-google-oauth": "*",
 		"passport-http-bearer": "*",
 		"stylus": "*",
 		"connect-ensure-login": "0.1.x",
