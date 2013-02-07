@@ -124,8 +124,18 @@ exports.authorization = [
 			});
 		}),
 	function(req, res, next){
-				
-		// // check for previous authorization
+		// check if client is preauthed
+		if( req.oauth2.client.trusted )
+		{
+			// simulate the necessary condition of an approval decision
+	    req.oauth2.res = {allow: true};
+	
+			return server.decision({
+	      loadTransaction: false
+	    })(req, res, next);
+		}
+		
+		// check for previous authorization
 		return AuthCode.findOne({clientID: req.oauth2.client.id, netID: req.user.netID}, function(err, authCode) {
 						
 			// if (err) { return done(err); }

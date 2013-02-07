@@ -6,7 +6,8 @@ var clientSchema = mongoose.Schema({
 	name: String,
 	clientID: String,
 	clientSecret: String,
-	scopes: Array
+	scopes: Array,
+	trusted: Boolean
 });
 
 var Client = module.exports = mongoose.model('Client', clientSchema);
