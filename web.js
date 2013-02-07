@@ -71,9 +71,7 @@ passport.use(new GoogleStrategy({
     // ensure they are actually an NYU user
 		var valid = false;
 		var pattern=/(\w+)@nyu.edu/i;
-		
-		console.log( profile );
-		
+				
 		for (var i=0; i<profile.emails.length; i++)
 		{
 			// address is from NYU
@@ -139,7 +137,7 @@ app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
 app.get('/auth/google', passport.authenticate('google', {
-	scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+	scope: ['https://www.googleapis.com/auth/userinfo.email'],
 	hd: 'nyu.edu'
 }));
 app.get('/auth/google/return', passport.authenticate('google', {
