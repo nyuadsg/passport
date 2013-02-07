@@ -94,6 +94,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 	});
 }));
 
+
 // user authorization endpoint
 //
 // `authorization` middleware accepts a `validate` callback which is
@@ -122,7 +123,28 @@ exports.authorization = [
 				return done(null, client, redirectURI);
 			});
 		}),
-	function(req, res){
+	function(req, res, next){
+				
+		// // check for previous authorization
+		return AuthCode.findOne({clientID: req.oauth2.client.id, netID: req.user.netID}, function(err, authCode) {
+						
+			// if (err) { return done(err); }
+			if( authCode != null )
+			{
+								
+				// simulate the necessary condition of an approval decision
+		    req.oauth2.res = {allow: true};
+		
+				return server.decision({
+		      loadTransaction: false
+		    })(req, res, next);
+			}
+			
+			next();
+			
+		});
+	},
+	function(req, res, next){
 		res.render("dialog", {
 			title: "Access Authorization",
 			Client: req.oauth2.client,
@@ -133,6 +155,29 @@ exports.authorization = [
 		// res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
 	}
 ]
+
+// AuthController.before('launch', function(req, res, next){
+//   var server = this.__req.app.get('oauth2server');
+// 
+//   // attempt to short-circuit auth based on long-standing prefs
+//   model.Authorization.checkForPriorAuthorization({
+//     user: req.user,
+//     app: req.oauth2.client
+//   }, function(err, priorAuthExists){
+//     if (priorAuthExists) {
+// 
+//       // simulate the necessary condition of an approval decision
+//       req.oauth2.res = {allow: true};
+// 
+//       return server.decision({
+//         loadTransaction: false
+//       }, onDecision)(req, res, next);
+// 
+//     }
+//     next();
+//   });
+// });
+
 
 // user decision endpoint
 //
