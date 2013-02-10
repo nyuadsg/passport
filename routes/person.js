@@ -24,7 +24,7 @@ exports.profile = function(req, res){
 	var netID = req.params.netID;
 		
 	User.find({ netID: netID }, function (err, users) {
-		res.send( users );
+		res.send( users.pop() );
 	});
 		
 	// res.send("netID: bob");
