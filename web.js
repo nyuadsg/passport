@@ -147,7 +147,8 @@ app.get('/auth/google/return', passport.authenticate('google', {
 app.get('/auth/finish', auth.finish);
 // -- profiles
 app.get('/person/me', person.me);
-app.get('/person/list', person.list);
+app.get('/person/list', person.list.index);
+app.get('/person/list/:school/:class/:select', person.list.view);
 // -- oauth
 app.get('/visa/oauth/authorize', oauth.authorization);
 app.post('/visa/oauth/decision', oauth.decision);

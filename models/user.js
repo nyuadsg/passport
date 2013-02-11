@@ -9,4 +9,8 @@ var userSchema = mongoose.Schema({
 	"name": String
 });
 
+userSchema.virtual('email').get(function () {
+  return this.netID + '@nyu.edu';
+});
+
 var User = module.exports = mongoose.model('User', userSchema);

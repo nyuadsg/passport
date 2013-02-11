@@ -2,3 +2,39 @@ extends layout
 
 block content
 	h1= title
+	p You, as the Student Body President, are the only person authorized to access these reports. If somebody isn't here, please email <a href="mailto:mp3255@nyu.edu">mp3255@nyu.edu</a>.
+	ul
+		li All students: 
+			ul
+				li
+					a(href=process.env.base_url + '/person/list/all/all/netID') with netID
+				li
+					a(href=process.env.base_url + '/person/list/all/all/email') with email
+				li
+					a(href=process.env.base_url + '/person/list/all/all/name,netID') with name and netID
+				li
+					a(href=process.env.base_url + '/person/list/all/all/name,class') with name and class
+		li Juniors: 
+			ul
+				li
+					a(href=process.env.base_url + '/person/list/all/2014/netID') with netID
+				li
+					a(href=process.env.base_url + '/person/list/all/2014/email') with email
+				li
+					a(href=process.env.base_url + '/person/list/all/2014/name,netID') with name and netID
+		li Sophomores: 
+			ul
+				li
+					a(href=process.env.base_url + '/person/list/all/2015/netID') with netID
+				li
+					a(href=process.env.base_url + '/person/list/all/2015/email') with email
+				li
+					a(href=process.env.base_url + '/person/list/all/2015/name,netID') with name and netID
+		li Freshmen:
+			ul
+				li
+					a(href=process.env.base_url + '/person/list/all/all/netID') with netID
+				li
+					a(href=process.env.base_url + '/person/list/all/all/email') with email
+				li
+					a(href=process.env.base_url + '/person/list/all/all/name,netID') with name and netID
