@@ -147,15 +147,16 @@ app.get('/auth/google/return', passport.authenticate('google', {
 app.get('/auth/finish', auth.finish);
 // -- profiles
 app.get('/person/me', person.me);
-app.get('/person/profile/:netID', person.profile);
+app.get('/person/list', person.list);
 // -- oauth
 app.get('/visa/oauth/authorize', oauth.authorization);
 app.post('/visa/oauth/decision', oauth.decision);
 app.post('/visa/oauth/token', oauth.token);
 // -- api
 app.get('/visa/use/info/me', person.api.me);
-
-
+app.get('/visa/use/info/profile/:netID', person.api.profile);
+// -- reports
+// app.get('/report', about.report);
 
 // start listening
 var port = process.env.PORT || 5000;

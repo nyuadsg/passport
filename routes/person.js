@@ -6,7 +6,10 @@ var api = require('../api');
  */
 
 exports.list = function(req, res){
-	res.send("respond with a resource");
+	User.find().exec( function( err, results ) ) {
+		console.log( results );
+		res.send("respond with a resource");
+	}
 };
 
 exports.me = function( req, res ) {
@@ -20,16 +23,6 @@ exports.me = function( req, res ) {
 	}
 }
 
-exports.profile = function(req, res){
-	var netID = req.params.netID;
-		
-	User.find({ netID: netID }, function (err, users) {
-		res.send( users.pop() );
-	});
-		
-	// res.send("netID: bob");
-};
-
 exports.api = {
 	me: [
 		api.passport.authenticate('bearer', { session: false }),
@@ -42,5 +35,14 @@ exports.api = {
 				profile.class = req.user.class
 			}
 			api.respond( res, profile);
-		}]
+		}];
+	profile: 	[
+			api.passport.authenticate('bearer', { session: false }),
+			function( req, res ) {
+				var netID = req.params.netID;
+
+				User.find({ netID: netID }, function (err, users) {
+					api.respond( res, users.pop() );
+				});
+			}];
 }
