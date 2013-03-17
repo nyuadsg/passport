@@ -42,7 +42,7 @@ exports.auth = function( req, res, next ) {
 	// api.passport.authenticate('bearer', { session: false })
 	Client.findOne({ clientID: req.query.client, clientSecret: req.query.secret }, function( err, client ) {
 		if (err || client == null) {
-			res.send('error')
+			res.send('Unauthorized')
 		}
 		else
 		{

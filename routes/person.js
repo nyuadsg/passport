@@ -101,11 +101,17 @@ exports.api = {
 
 				User.findOne({ netID: netID }, function (err, user) {
 					if( user == null ) {
-						api.respond( res, { message: "user does not exist" } );
+						api.respond( res, { type: 'user.notexist', message: "user does not exist" } );
 					}
 					else
 					{
-						api.respond( res, user );
+						profile = {};
+						
+						profile.netID = user.netID;
+						profile.class = user.class;
+						profile.school = user.school;
+						
+						api.respond( res, profile );
 					}
 				});
 			}]
