@@ -10,7 +10,7 @@ Authentication is done via OAuth, with these endpoints:
 * Token enddpoint/exchange: ```http://passport.sg.nyuad.org/visa/oauth/token```
 
 #### Current User
-Once authorized, you can request profile information on the currently authed user from the endpoint ```http://passport.sg.nyuad.org/visa/use/info/me```. This must be passed an authorization code (a standard OAuth authenticaed token). It will return a #profiles.
+Once authorized, you can request profile information on the currently authed user from the endpoint ```http://passport.sg.nyuad.org/visa/use/info/me```. This must be passed an authorization code (a standard OAuth authenticaed token). It will return a profile.
 
 #### Profiles
 You can also request information on any user through the endpoint ```http://passport.sg.nyuad.org/api/info/profile/net9238?client=YOURCLIENTHERE&secret=YOURSECRETHERE```.
