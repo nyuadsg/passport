@@ -7,7 +7,8 @@ var Client = require('./models/clients');
 
 var scopes = {
 	'user.me.netID': 'Know your netID.',
-	'user.me.class': 'Know your graduation year.'
+	'user.me.class': 'Know your graduation year.',
+	'user.me.name': 'Know your name'
 }
 
 passport.use(new BearerStrategy(
