@@ -90,7 +90,7 @@ exports.api = {
 				profile.netID = req.user.netID
 			}
 			if( api.can( req.authInfo.scopes, 'user.me.name' ) ) {
-				profile.netID = req.user.name
+				profile.name = req.user.name
 			}
 			if( api.can( req.authInfo.scopes, 'user.me.class' ) ) {
 				profile.class = req.user.class
