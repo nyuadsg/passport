@@ -95,12 +95,18 @@ exports.api = {
 			api.respond( res, profile);
 		}],
 	profile: 	[
-			api.passport.authenticate('bearer', { session: false }),
+			api.auth,
 			function( req, res ) {
 				var netID = req.params.netID;
 
-				User.find({ netID: netID }, function (err, users) {
-					api.respond( res, users.pop() );
+				User.findOne({ netID: netID }, function (err, user) {
+					if( user == null ) {
+						api.respond( res, { message: "user does not exist" } );
+					}
+					else
+					{
+						api.respond( res, user );
+					}
 				});
 			}]
 }

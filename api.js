@@ -32,6 +32,25 @@ passport.use(new BearerStrategy(
 
 exports.passport = passport;
 
+exports.auth = function( req, res, next ) {
+	passport.authenticate('bearer', { session: false }, next );
+	
+	// console.log( req.query.client );
+	
+	// res.send( 'error' );
+	
+	// api.passport.authenticate('bearer', { session: false })
+	Client.findOne({ clientID: req.query.client, clientSecret: req.query.secret }, function( err, client ) {
+		if (err || client == null) {
+			res.send('error')
+		}
+		else
+		{
+			next();
+		}
+	});
+}
+
 exports.respond = function( res, output ) {
 	res.json( output );
 }

@@ -156,6 +156,7 @@ app.post('/visa/oauth/token', oauth.token);
 // -- api
 app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);
+app.get('/api/info/profile/:netID', person.api.profile);
 // -- reports
 // app.get('/report', about.report);
 
