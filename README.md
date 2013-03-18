@@ -31,3 +31,6 @@ If the user is not valid, you will receive an error:
   "message": "user does not exist"
 }
 ```
+
+#### Logout
+If you provide a logout button in your application, you might consider propogating that logout action down the stack to Passport & NYU. To do so, just direct the user (with a redirect or link) to ```http://passport.sg.nyuad.org/auth/logout```.
