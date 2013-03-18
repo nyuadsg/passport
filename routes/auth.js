@@ -43,3 +43,11 @@ exports.fail = function(req,res){
 		next: process.env.base_url + '/auth/start'
 	});
 }
+
+exports.logout = function( req, res ) {
+	req.logout();
+	
+	var redir = 'https://accounts.google.com/logout';
+	
+	res.redirect( redir );
+}

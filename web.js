@@ -37,7 +37,7 @@ app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.cookieParser( process.env.secret ));
-	app.use(express.session({ key: 'passport.sess', secret: process.env.secret }));
+	app.use(express.session({ key: 'passport.sess', secret: process.env.secret, maxAge: 10000 }));
 	app.use(passport.initialize());
 	app.use(passport.session());  
 	app.use(app.router);
@@ -145,6 +145,8 @@ app.get('/auth/google/return', passport.authenticate('google', {
 	failureRedirect: '/auth/fail'
 })); // finish the Google auth loop
 app.get('/auth/finish', auth.finish);
+// -- enable logout
+app.get('/auth/logout', auth.logout);
 // -- profiles
 app.get('/person/me', person.me);
 app.get('/person/list', person.list.index);
