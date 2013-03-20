@@ -122,6 +122,10 @@ exports.api = {
 			if( api.can( req.authInfo.scopes, 'user.me.class' ) ) {
 				profile.class = req.user.class
 			}
+			if( api.can( req.authInfo.scopes, 'user.me.school' ) ) {
+				profile.school = req.user.school;
+				profile.site = req.user.site;
+			}
 			api.respond( res, profile);
 		}],
 	profile: 	[
@@ -141,6 +145,7 @@ exports.api = {
 						profile.name = user.name;
 						profile.class = user.class;
 						profile.school = user.school;
+						profile.site = user.site;
 						
 						api.respond( res, profile );
 					}
