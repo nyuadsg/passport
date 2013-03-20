@@ -149,6 +149,7 @@ app.get('/auth/finish', auth.finish);
 app.get('/auth/logout', auth.logout);
 // -- profiles
 app.get('/person/me', person.me);
+// app.get('/person/update', person.update);
 app.get('/person/list', person.list.index);
 app.get('/person/list/:school/:class/:select', person.list.view);
 // -- oauth

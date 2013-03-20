@@ -9,6 +9,8 @@ var api = require('../api');
 access_admin = function(req, res, next) {
 	admins = ["mp3255","lmr439","bmb351"]
 	
+	console.log( req.user );
+	
 	if( req.user == undefined )
 	{
 		res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
@@ -22,6 +24,25 @@ access_admin = function(req, res, next) {
 		next();
 	}
 }
+
+// custom method for updating data
+// exports.update = [
+// 	access_admin,
+// 	function( req, res ) {
+// 		changes = [
+// 			{"netID": "mp2", "name": "New Name"},
+// 		];
+// 		console.log( 'processing' );
+// 		changes.forEach( function( value, index) {
+// 			User.update({ 'netID': value.netID }, { $set: { 'name': value.name }}, function( err, resp) {
+// 				console.log( err, resp );
+// 			});
+// 			// console.log( value );
+// 		});
+// 		res.send( 'done' );
+// 		// res.redirect( process.env.base_url );
+// 	}
+// ]
 
 exports.list = {
 	index: [
