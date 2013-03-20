@@ -6,6 +6,7 @@ var userSchema = mongoose.Schema({
 	openID: String,
 	"class": Number,
 	school: String,
+	'site': {type: String, default: 'AD'}, // the site the person is currently studying at
 	"name": String
 });
 

@@ -58,6 +58,12 @@ exports.list = {
 		
 			if( req.params.class != "all")
 				query.where("class").equals( req.params.class );
+				
+			// only show members of the NYUAD "student body"
+			query.or([
+				{ site: 'AD' }, // everyone studying in Abu Dhabi
+				{ school: 'NYUAD' } // everyone who is an NYUAD student
+			]);
 		
 			if( req.params.select == "netID") {
 				query.select("netID");
