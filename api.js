@@ -9,7 +9,8 @@ var scopes = {
 	'user.me.netID': 'Know your netID',
 	'user.me.class': 'Know your graduation year',
 	'user.me.name': 'Know your name',
-	'user.me.school': 'Know your school at NYU'
+	'user.me.school': 'Know your school at NYU',
+	'user.groups': 'Manage groups you are in'
 }
 
 passport.use(new BearerStrategy(
@@ -48,6 +49,9 @@ exports.auth = function( req, res, next ) {
 		}
 		else
 		{
+			req.authInfo ={
+				scopes: client.scopes
+			};
 			next();
 		}
 	});
@@ -61,7 +65,7 @@ exports.scope_name= function( scope ) {
 	return scopes[scope];
 }
 
-exports.can= function( scopes, scope ) {
+exports.can= function( scope, scopes ) {
 	if( scopes.indexOf( scope ) == -1 )
 	{
 		return false

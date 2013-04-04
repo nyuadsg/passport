@@ -7,7 +7,8 @@ var userSchema = mongoose.Schema({
 	"class": Number,
 	school: String,
 	'site': {type: String, default: 'AD'}, // the site the person is currently studying at
-	"name": String
+	"name": String,
+	"groups": [{ type: String }]
 });
 
 userSchema.virtual('email').get(function () {

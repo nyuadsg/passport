@@ -1,4 +1,5 @@
 var User = require('../models/user');
+var Group = require('../models/group');
 var api = require('../api');
 
 /*
@@ -109,20 +110,39 @@ exports.me = function( req, res ) {
 }
 
 exports.api = {
+	group: {
+		new: [
+			api.auth, // authenticated
+			// api call for permission
+			function( req, res )
+			{
+				if( !api.can( 'groups.add', req.authInfo.scopes ) ) // can add groups
+				{
+					res.send('Unauthorized');
+				}
+				else
+				{
+					Group.newGroup( req.query.name, req.query.slug, function( group ) {
+						res.send( group );
+					});
+				}
+			}
+		]
+	},
 	me: [
 		api.passport.authenticate('bearer', { session: false }),
 		function( req, res ) {
 			profile = {};
-			if( api.can( req.authInfo.scopes, 'user.me.netID' ) ) {
+			if( api.can( 'user.me.netID', req.authInfo.scopes ) ) {
 				profile.netID = req.user.netID
 			}
-			if( api.can( req.authInfo.scopes, 'user.me.name' ) ) {
+			if( api.can( 'user.me.name', req.authInfo.scopes ) ) {
 				profile.name = req.user.name
 			}
-			if( api.can( req.authInfo.scopes, 'user.me.class' ) ) {
+			if( api.can( 'user.me.class', req.authInfo.scopes ) ) {
 				profile.class = req.user.class
 			}
-			if( api.can( req.authInfo.scopes, 'user.me.school' ) ) {
+			if( api.can( 'user.me.school', req.authInfo.scopes ) ) {
 				profile.school = req.user.school;
 				profile.site = req.user.site;
 			}

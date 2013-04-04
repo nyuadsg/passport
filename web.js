@@ -12,7 +12,7 @@ var routes = require('./routes')
 
 // prepare database
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOURL || process.env.MONGOLAB_URI || process.env.MONGOHQ_URL);
+mongoose.connect(process.env.MONGOURL || process.env.MONGOLAB_URI || process.env.MONGOHQ_URLL || 'mongodb://localhost/test');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -20,6 +20,7 @@ db.once('open', function callback () {});
 
 // load models
 var User = require('./models/user');
+var Group = require('./models/group');
 var AuthCode = require('./models/authcode');
 var Token = require('./models/token');
 var Client = require('./models/clients');
@@ -160,6 +161,10 @@ app.post('/visa/oauth/token', oauth.token);
 app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);
 app.get('/api/info/profile/:netID', person.api.profile);
+// -- api / group
+app.get('/api/group/new', person.api.group.new);
+app.get('/api/group/add', person.api.group.add);
+
 // -- reports
 // app.get('/report', about.report);
 
