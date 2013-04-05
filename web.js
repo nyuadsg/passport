@@ -156,6 +156,7 @@ app.get('/person/list', person.list.index);
 app.get('/person/list/:school/:class/:select', person.list.view);
 // -- groups
 app.get('/groups', groups.list.gui);
+app.post('/groups/new', groups.new.gui);
 app.get('/groups/:slug/view', groups.view.gui);
 app.post('/groups/:slug/add', groups.add.gui);
 app.get('/groups/:slug/remove', groups.remove.gui);

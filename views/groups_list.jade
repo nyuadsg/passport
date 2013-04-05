@@ -2,9 +2,20 @@ extends layout
 
 block content
 	h1= title
-	p Here are all groups.
+	p Here are all groups. 
+		a(href='#new') New group
 	ul
 		each group in groups
 			li
 				a(href=group.url.view)
 					strong=group.name
+	form#new(method='POST',action=process.env.base_url + '/groups/new')
+		h2 New Group
+		
+		label(for='name') Name
+		input#name(type='text',name='name')
+		
+		label(for='slug') Slug
+		input#slug(type='text',name='slug')
+				
+		input(type='submit')

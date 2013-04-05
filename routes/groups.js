@@ -92,7 +92,15 @@ exports.new = {
 				});
 			}
 		}
-	]
+	],
+	gui: [
+		access_admin,
+		function( req, res ) {
+			Group.newGroup( req.body.name, req.body.slug, function( group ) {
+				res.redirect( group.url.view );
+			});
+		}
+	],
 }
 
 exports.add = {

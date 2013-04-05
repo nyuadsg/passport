@@ -3,7 +3,7 @@ extends layout
 block content
 	h1= title
 	p Viewing group members. 
-		a(href=group.url.add) Add members
+		a(href='#add') Add members
 		| . 
 		a(href=process.env.base_url + '/groups') All groups
 	table.members
@@ -17,4 +17,3 @@ block content
 		p Enter one netID per line
 		textarea#netids(name='netids')
 		input(type='submit')
-	
