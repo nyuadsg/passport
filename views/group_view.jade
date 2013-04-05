@@ -6,6 +6,7 @@ block content
 		a(href='#add') Add members
 		| . 
 		a(href=process.env.base_url + '/groups') All groups
+	p Group slug: <strong>#{group.slug}</strong>
 	table.members
 		each member in members
 			tr.member
