@@ -156,6 +156,9 @@ app.get('/person/list', person.list.index);
 app.get('/person/list/:school/:class/:select', person.list.view);
 // -- groups
 app.get('/groups', groups.list.gui);
+app.get('/groups/:slug/view', groups.view.gui);
+app.post('/groups/:slug/add', groups.add.gui);
+app.get('/groups/:slug/remove', groups.remove.gui);
 // -- oauth
 app.get('/visa/oauth/authorize', oauth.authorization);
 app.post('/visa/oauth/decision', oauth.decision);

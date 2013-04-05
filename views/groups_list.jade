@@ -1,0 +1,10 @@
+extends layout
+
+block content
+	h1= title
+	p Here are all groups.
+	ul
+		each group in groups
+			li
+				a(href=group.url.view)
+					strong=group.name

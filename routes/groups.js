@@ -27,7 +27,50 @@ exports.list = {
 	gui: [
 		access_admin,
 		function( req, res ) {
-			res.send( 'list' );
+			Group.find({}, function( err, groups ) {
+				if( err )
+				{
+					res.send( err );
+				}
+				else
+				{
+					res.render('groups_list', {
+						title: 'Passport Groups',
+						groups: groups
+					});
+				}
+			});
+		}
+	]
+}
+
+exports.view = {
+	gui: [
+		access_admin,
+		function( req, res ) {
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {
+				if( err )
+				{
+					res.send( err );
+				}
+				else
+				{
+					group.members( {}, function( err, members ) {
+						if( err )
+						{
+							res.send( err );
+						}
+						else
+						{
+							res.render('group_view', {
+								title: group.name,
+								members: members,
+								group: group
+							});
+						}
+					});
+				}
+			});
 		}
 	]
 }
@@ -53,6 +96,30 @@ exports.new = {
 }
 
 exports.add = {
+	gui: [
+		access_admin,
+		function( req, res ) {
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {
+				if( err )
+				{
+					res.send( err );
+				}
+				else
+				{
+					ids = req.body.netids;
+					ids = ids.split('\r\n');
+					
+					ids.forEach( function( id ) {
+						User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
+							
+						} );
+					});
+					
+					res.redirect( group.url.view );
+				}
+			});
+		}
+	],
 	api: [
 		api.auth, // authenticated
 		// api call for permission
@@ -132,6 +199,35 @@ exports.add = {
 				// 						}
 				// 					});
 			}
+		}
+	]
+}
+
+exports.remove = {
+	gui: [
+		access_admin,
+		function( req, res ) {
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {
+				if( err )
+				{
+					res.send( err );
+				}
+				else
+				{
+					User.findOne( {netID: req.query.netid }, function( err, user ) {
+						if( err )
+						{
+							res.send( err );
+						}
+						else
+						{
+							group.removeUser( user, function( err, user ) {
+								res.redirect( group.url.view );
+							});
+						}
+					});
+				}
+			});
 		}
 	]
 }

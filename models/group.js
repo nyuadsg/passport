@@ -10,10 +10,39 @@ var groupSchema = mongoose.Schema({
 
 groupSchema.methods.addUser = function (user, cb) {
 	user.groups.push( this.slug );
-	return user.groups.save( function( err ) {
+	return user.save( function( err ) {
 		cb( err, user );
 	});
 }
+
+groupSchema.methods.removeUser = function (user, cb) {
+	groups = user.groups;
+	for(var i in groups){
+		if(groups[i] == this.slug){
+			groups.splice(i,1);
+		}
+	}
+	user.groups = groups;
+	return user.save( function( err ) {
+		cb( err, user );
+	});
+}
+
+groupSchema.methods.members = function (where, cb) {
+	var query = User.find( where );
+		
+	query.where('groups').all([ this.slug ]);
+		
+	query.exec( cb );
+}
+
+groupSchema.virtual('url').get(function () {
+  return {
+		view: process.env.base_url + '/groups/' + this.slug + '/view',
+		add: process.env.base_url + '/groups/' + this.slug + '/add',
+		remove: process.env.base_url + '/groups/' + this.slug + '/remove'
+	};
+});
 
 groupSchema.statics.newGroup = function( name, slug, cb ) {
 	if( slug == undefined || slug == false )
