@@ -8,7 +8,7 @@ var api = require('../api');
 
 // this should be replaced with a group
 access_admin = function(req, res, next) {
-	admins = ["mp3255","lmr439","bmb351"]
+	admins = ["mp3255","lmr439","bmb351","jfb325"]
 		
 	if( req.user == undefined )
 	{
