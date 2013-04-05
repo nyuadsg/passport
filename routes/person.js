@@ -127,6 +127,9 @@ exports.api = {
 				profile.school = req.user.school;
 				profile.site = req.user.site;
 			}
+			if( api.can( 'user.me.groups', req.authInfo.scopes ) ) {
+				profile.groups = req.user.groups;
+			}
 			api.respond( res, profile);
 		}],
 	profile: 	[
@@ -147,6 +150,7 @@ exports.api = {
 						profile.class = user.class;
 						profile.school = user.school;
 						profile.site = user.site;
+						profile.groups = user.groups;
 						
 						api.respond( res, profile );
 					}
