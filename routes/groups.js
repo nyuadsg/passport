@@ -23,8 +23,17 @@ access_admin = function(req, res, next) {
 	}
 }
 
-exports.api = {
-	new: [
+exports.list = {
+	gui: [
+		access_admin,
+		function( req, res ) {
+			res.send( 'list' );
+		}
+	]
+}
+
+exports.new = {
+	api: [
 		api.auth, // authenticated
 		// api call for permission
 		function( req, res )
@@ -40,12 +49,15 @@ exports.api = {
 				});
 			}
 		}
-	],
-	add: [
+	]
+}
+
+exports.add = {
+	api: [
 		api.auth, // authenticated
 		// api call for permission
 		function( req, res )
-		{
+		{			
 			if( !api.can( 'groups.manage', req.authInfo.scopes ) ) // can add groups
 			{
 				res.send('Unauthorized');

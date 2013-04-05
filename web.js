@@ -154,6 +154,8 @@ app.get('/person/me', person.me);
 // app.get('/person/update', person.update);
 app.get('/person/list', person.list.index);
 app.get('/person/list/:school/:class/:select', person.list.view);
+// -- groups
+app.get('/groups', groups.list.gui);
 // -- oauth
 app.get('/visa/oauth/authorize', oauth.authorization);
 app.post('/visa/oauth/decision', oauth.decision);
@@ -163,8 +165,8 @@ app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);
 app.get('/api/info/profile/:netID', person.api.profile);
 // -- api / group
-app.get('/api/group/new', groups.api.new);
-app.get('/api/group/add', groups.api.add);
+app.get('/api/group/new', groups.new.api);
+app.get('/api/group/add', groups.add.api);
 
 // -- reports
 // app.get('/report', about.report);
