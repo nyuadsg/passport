@@ -7,6 +7,7 @@ var passport = require('passport')
 var routes = require('./routes')
 	, about = require('./routes/about')
 	, person = require('./routes/person')
+	, groups = require('./routes/groups')
 	, oauth = require('./routes/oauth')
 	, auth = require('./routes/auth');
 
@@ -162,8 +163,8 @@ app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);
 app.get('/api/info/profile/:netID', person.api.profile);
 // -- api / group
-app.get('/api/group/new', person.api.group.new);
-app.get('/api/group/add', person.api.group.add);
+app.get('/api/group/new', groups.api.new);
+app.get('/api/group/add', groups.api.add);
 
 // -- reports
 // app.get('/report', about.report);

@@ -110,25 +110,6 @@ exports.me = function( req, res ) {
 }
 
 exports.api = {
-	group: {
-		new: [
-			api.auth, // authenticated
-			// api call for permission
-			function( req, res )
-			{
-				if( !api.can( 'groups.add', req.authInfo.scopes ) ) // can add groups
-				{
-					res.send('Unauthorized');
-				}
-				else
-				{
-					Group.newGroup( req.query.name, req.query.slug, function( group ) {
-						res.send( group );
-					});
-				}
-			}
-		]
-	},
 	me: [
 		api.passport.authenticate('bearer', { session: false }),
 		function( req, res ) {

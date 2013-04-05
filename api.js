@@ -10,7 +10,9 @@ var scopes = {
 	'user.me.class': 'Know your graduation year',
 	'user.me.name': 'Know your name',
 	'user.me.school': 'Know your school at NYU',
-	'user.groups': 'Manage groups you are in'
+	'user.me.groups': 'Manage groups you are in',
+	'groups.add': 'Create new groups',
+	'groups.manage': 'Manage group memberships'
 }
 
 passport.use(new BearerStrategy(
