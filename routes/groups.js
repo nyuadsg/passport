@@ -9,12 +9,12 @@ var api = require('../api');
 // this should be replaced with a group
 access_admin = function(req, res, next) {
 	admins = ["mp3255","lmr439","bmb351","jfb325"]
-		
+				
 	if( req.user == undefined )
 	{
 		res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
-	}
-	else if( admins.indexOf( req.user.netID) == -1)
+	}	
+	else if( req.user.groups.indexOf( 'admins' ) == -1)
 	{
 		res.redirect(  process.env.base_url );
 	}
