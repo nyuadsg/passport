@@ -31,19 +31,29 @@ groupSchema.methods.removeUser = function (user, cb) {
 	});
 }
 
+addImplicitGroups = function( group, prefix ) {
+	group.members({}, function( err, members ) {
+		_.each( members, function( member ) {
+			member.implicit_groups.push( prefix + ':' + group.slug );
+			member.save( function() {} );
+		});
+	});
+}
+
 groupSchema.methods.addGroup = function (sg, cb) {
+	slug = this.slug;
+	
 	this.subgroups.push( sg.slug );
 	
 	this.subgroups = _.uniq( this.subgroups );
 	
+	// add implicit groups
+	
+	
 	return this.save( function( err ) {
 		
-		sg.members({}, function( err, members ) {
-			_.each( members, function( member ) {
-				// member.regenerateGroups();
-			});
-		});
-		
+		addImplicitGroups( sg, slug )
+				
 		cb( err, sg );
 	});
 }

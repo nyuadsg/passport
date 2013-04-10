@@ -68,11 +68,7 @@ exports.view = {
 								res.send( err );
 							}
 							else
-							{
-								_.each( members, function( member ) {
-									member.regenerateGroups();
-								});
-								
+							{								
 								group.getSubgroups( {}, function( err, subgroups ) {
 									if( err )
 									{
