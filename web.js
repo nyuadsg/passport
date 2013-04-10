@@ -161,9 +161,12 @@ app.get('/groups/:slug/view', groups.view.gui);
 app.post('/groups/:slug/add', groups.add.gui);
 app.get('/groups/:slug/remove', groups.remove.gui);
 // -- oauth
+app.get('/visa/oauth', oauth.authorization);
 app.get('/visa/oauth/authorize', oauth.authorization);
 app.post('/visa/oauth/decision', oauth.decision);
 app.post('/visa/oauth/token', oauth.token);
+// -- client/side oauth
+// app.get('/visa/oauth/simple', oauth.simple );
 // -- api
 app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);

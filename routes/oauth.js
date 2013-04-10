@@ -3,6 +3,7 @@
  */
 var oauth2orize = require('oauth2orize')
 	, login = require('../login')
+	, url = require('url')
 	, utils = require('../utils');
 	
 // api
@@ -69,6 +70,36 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 	});
 }));
 
+// allow for implicit grants
+server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
+	// AccessToken.create(client, user, ares.scope, function(err, accessToken) {
+	//  *         if (err) { return done(err); }
+	//  *         done(null, accessToken);
+	//  *       });
+	
+	// Client.findOne({clientID: client}, function(err, client) {
+	// 	if (err) { return done(err); }
+	// 		// WARNING: For security purposes, it is highly advisable to check that
+	// 		//          redirectURI provided by the client matches one registered with
+	// 		//          the server.  For simplicity, this example does not.  You have
+	// 		//          been warned.
+	// 	console.log( client );
+	// 	return done(null, client, redirectURI);
+	// });
+	
+	// console.log( client );
+	
+	var token = new Token({
+		token: utils.uid(256),
+		clientID: client.id,
+		netID: user.netID
+	});
+	token.save(function(err) {
+		if (err) { return done(err); }
+		done(null, token.token);
+	});
+}));
+
 // // Exchange authorization codes for access tokens.  The callback accepts the
 // // `client`, which is exchanging `code` and any `redirectURI` from the
 // // authorization request for verification.  If these values are validated, the
@@ -114,15 +145,15 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 exports.authorization = [
 	login.ensure,
 	server.authorization(function(clientID, redirectURI, done) {
-			Client.findOne({clientID: clientID}, function(err, client) {
-				if (err) { return done(err); }
+		Client.findOne({clientID: clientID}, function(err, client) {
+			if (err) { return done(err); }
 				// WARNING: For security purposes, it is highly advisable to check that
 				//          redirectURI provided by the client matches one registered with
 				//          the server.  For simplicity, this example does not.  You have
 				//          been warned.
 				return done(null, client, redirectURI);
-			});
-		}),
+		});
+	}),
 	function(req, res, next){
 		// check if client is preauthed
 		if( req.oauth2.client.trusted )
@@ -216,7 +247,23 @@ exports.token = [
 	server.token(),
 	server.errorHandler()
 ]
-// 
-// exports.token= function( req, res ) {
-// 	console.log( req );
-// }
+
+// helper to chose the proper flow
+// (normal or clientside)
+exports.begin = function( req, res ) {
+	
+	query = req.query;
+	
+	// token-based, so start our fancy little bit
+	if( req.query.response_type == 'token' )
+	{
+		// save original redirect
+		req.session.next = query.redirect_uri;
+		
+		// change query
+		query.response_type = 'code';
+		query.redirect_uri = process.env.base_url + '/visa/oauth/end';
+	}
+	
+	res.send( query );
+}

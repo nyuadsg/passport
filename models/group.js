@@ -36,6 +36,17 @@ groupSchema.methods.members = function (where, cb) {
 	query.exec( cb );
 }
 
+groupSchema.methods.countMembers = function (where, cb) {
+	var query = User.count( where );
+		
+	query.where('groups').all([ this.slug ]);
+		
+	query.exec( function( err, count ) {
+		this._count = count;
+		
+	} );
+}
+
 groupSchema.virtual('url').get(function () {
   return {
 		view: process.env.base_url + '/groups/' + this.slug + '/view',
