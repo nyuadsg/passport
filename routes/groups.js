@@ -13,7 +13,7 @@ access_admin = [
 		{
 			res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
 		}	
-		else if( !req.user.isIn( 'access-admins' ) )
+		else if( !req.user.isIn( 'see-groups' ) || req.user.isIn( 'admins' ) )
 		{			
 			res.redirect(  process.env.base_url );
 		}
