@@ -11,6 +11,10 @@ var userSchema = mongoose.Schema({
 	"groups": [{ type: String }]
 });
 
+userSchema.methods.isIn = function( groupString ) {
+	return ( this.groups.indexOf( groupString ) != -1 );
+}
+
 userSchema.virtual('email').get(function () {
   return this.netID + '@nyu.edu';
 });

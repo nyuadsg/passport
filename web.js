@@ -196,6 +196,8 @@ app.post('/groups/new', groups.new.gui);
 app.get('/groups/:slug/view', groups.view.gui);
 app.post('/groups/:slug/add', groups.add.gui);
 app.get('/groups/:slug/remove', groups.remove.gui);
+app.get('/groups/:slug/promote', groups.promote.gui);
+app.get('/groups/:slug/demote', groups.demote.gui);
 // -- oauth
 app.get('/visa/oauth', oauth.authorization);
 app.get('/visa/oauth/authorize', oauth.authorization);

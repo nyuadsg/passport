@@ -5,7 +5,7 @@ var User = require('./user');
 var groupSchema = mongoose.Schema({
 	"slug": { type: String, required: true, index: { unique: true }, lowercase: true },
 	"name": String,
-	"admins": [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+	"admins": [ { type: String } ]
 });
 
 groupSchema.methods.addUser = function (user, cb) {
@@ -26,6 +26,36 @@ groupSchema.methods.removeUser = function (user, cb) {
 	return user.save( function( err ) {
 		cb( err, user );
 	});
+}
+
+groupSchema.methods.isAdmin = function ( who ) {
+	if( who.netID != null )
+	{				
+		if( this.admins.indexOf( who.netID ) != -1 )
+		{
+			return true;
+		}
+	}	
+	
+	return false;
+}
+
+groupSchema.methods.canAdmin = function( who ) {	
+	if( this.isAdmin( who ) )
+	{
+		return true;
+	}
+	
+	// check for admins
+	if( who.netID != null )
+	{
+		if( who.isIn( 'admins' ) )
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 groupSchema.methods.members = function (where, cb) {
@@ -51,7 +81,9 @@ groupSchema.virtual('url').get(function () {
   return {
 		view: process.env.base_url + '/groups/' + this.slug + '/view',
 		add: process.env.base_url + '/groups/' + this.slug + '/add',
-		remove: process.env.base_url + '/groups/' + this.slug + '/remove'
+		remove: process.env.base_url + '/groups/' + this.slug + '/remove',
+		promote: process.env.base_url + '/groups/' + this.slug + '/promote',
+		demote: process.env.base_url + '/groups/' + this.slug + '/demote'
 	};
 });
 

@@ -1,28 +1,28 @@
 var User = require('../models/user');
 var Group = require('../models/group');
+var login = require('../login');
 var api = require('../api');
 
-/*
- * GET users listing.
- */
+var _ = require('../public/lib/underscore');
 
 // this should be replaced with a group
-access_admin = function(req, res, next) {
-	admins = ["mp3255","lmr439","bmb351","jfb325"]
-				
-	if( req.user == undefined )
-	{
-		res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
-	}	
-	else if( req.user.groups.indexOf( 'admins' ) == -1)
-	{
-		res.redirect(  process.env.base_url );
+access_admin = [
+	login.ensure,
+	function(req, res, next) {		
+		if( req.user == undefined )
+		{
+			res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
+		}	
+		else if( !req.user.isIn( 'access-admins' ) )
+		{			
+			res.redirect(  process.env.base_url );
+		}
+		else
+		{
+			next();
+		}
 	}
-	else
-	{
-		next();
-	}
-}
+]
 
 exports.list = {
 	gui: [
@@ -35,6 +35,10 @@ exports.list = {
 				}
 				else
 				{
+					groups = _.filter( groups, function( group ) {
+						return group.canAdmin( req.user );
+					});
+					
 					res.render('groups_list', {
 						title: 'Passport Groups',
 						groups: groups
@@ -47,29 +51,36 @@ exports.list = {
 
 exports.view = {
 	gui: [
-		access_admin,
+		login.ensure,
 		function( req, res ) {
-			Group.findOne( {slug: req.params.slug }, function( err, group ) {
-				if( err )
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {	
+				if( group.canAdmin( req.user ) )
 				{
-					res.send( err );
-				}
+					if( err )
+					{
+						res.send( err );
+					}
+					else
+					{
+						group.members( {}, function( err, members ) {
+							if( err )
+							{
+								res.send( err );
+							}
+							else
+							{
+								res.render('group_view', {
+									title: group.name,
+									members: members,
+									group: group
+								});
+							}
+						});
+					}
+				}			
 				else
 				{
-					group.members( {}, function( err, members ) {
-						if( err )
-						{
-							res.send( err );
-						}
-						else
-						{
-							res.render('group_view', {
-								title: group.name,
-								members: members,
-								group: group
-							});
-						}
-					});
+					res.send( 'access denied' );
 				}
 			});
 		}
@@ -97,16 +108,29 @@ exports.new = {
 	gui: [
 		access_admin,
 		function( req, res ) {
-			Group.newGroup( req.body.name, req.body.slug, function( group ) {
-				res.redirect( group.url.view );
-			});
+			if( req.user.isIn( 'create-groups') || req.user.isIn( 'admins') )
+			{
+				Group.newGroup( req.body.name, req.body.slug, function( group ) {
+					// add myself as an admin
+					group.addUser( req.user, function( err, user ) {
+						group.admins.push( user.netID );
+						group.save( function() {
+							res.redirect( group.url.view );
+						});
+					})
+				});
+			}
+			else
+			{
+				res.send( 'access denied' );
+			}
 		}
 	],
 }
 
-exports.add = {
+exports.promote = {
 	gui: [
-		access_admin,
+		login.ensure,
 		function( req, res ) {
 			Group.findOne( {slug: req.params.slug }, function( err, group ) {
 				if( err )
@@ -115,16 +139,83 @@ exports.add = {
 				}
 				else
 				{
-					ids = req.body.netids;
-					ids = ids.split('\r\n');
-					
-					ids.forEach( function( id ) {
-						User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
-							
-						} );
-					});
-					
-					res.redirect( group.url.view );
+					if( group.canAdmin( req.user ) )
+					{
+						group.admins.push( req.query.who );
+
+						group.save( function() {
+
+						});
+
+						res.redirect( group.url.view );
+					}
+					else
+					{
+						res.send( 'access denied' );
+					}
+				}
+			});
+		}
+	]
+}
+
+exports.demote = {
+	gui: [
+		login.ensure,
+		function( req, res ) {
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {
+				if( err )
+				{
+					res.send( err );
+				}
+				else
+				{
+					if( group.canAdmin( req.user ) )
+					{
+						group.admins = _.without( group.admins, req.query.who );
+
+						group.save( function() {});
+
+						res.redirect( group.url.view );
+					}
+					else
+					{
+						res.send('access denied');
+					}
+				}
+			});
+		}
+	]
+}
+
+exports.add = {
+	gui: [
+		login.ensure,
+		function( req, res ) {
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {
+				if( err )
+				{
+					res.send( err );
+				}
+				else
+				{
+					if( group.canAdmin( req.user ) )
+					{
+						ids = req.body.netids;
+						ids = ids.split('\r\n');
+
+						ids.forEach( function( id ) {
+							User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
+
+							} );
+						});
+
+						res.redirect( group.url.view );
+					}
+					else
+					{
+						res.send('access denied');
+					}
 				}
 			});
 		}
@@ -161,9 +252,7 @@ exports.add = {
 							"message": "Already a member",
 							"code": "group.add.already"
 						});
-					}
-					
-					
+					}					
 					
 					Group.findOne( { slug: slug }, function( err, group ) {
 						// make sure that group exists
@@ -223,18 +312,25 @@ exports.remove = {
 				}
 				else
 				{
-					User.findOne( {netID: req.query.netid }, function( err, user ) {
-						if( err )
-						{
-							res.send( err );
-						}
-						else
-						{
-							group.removeUser( user, function( err, user ) {
-								res.redirect( group.url.view );
-							});
-						}
-					});
+					if( group.canAdmin( req.user ) )
+					{
+						User.findOne( {netID: req.query.netid }, function( err, user ) {
+							if( err )
+							{
+								res.send( err );
+							}
+							else
+							{
+								group.removeUser( user, function( err, user ) {
+									res.redirect( group.url.view );
+								});
+							}
+						});
+					}
+					else
+					{
+						res.send( 'access denied' );
+					}
 				}
 			});
 		}

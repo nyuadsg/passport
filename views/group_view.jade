@@ -11,6 +11,14 @@ block content
 		each member in members
 			tr.member
 				td.netID=member.netID
+				
+				if( !group.isAdmin( member ) )
+					td.promote.changeRole
+						a(href=group.url.promote + '?who=' + member.netID) Promote
+				else
+					td.demote.changeRole
+						a(href=group.url.demote + '?who=' + member.netID) Demote
+						
 				td.delete
 					a(href=group.url.remove + '?netid=' + member.netID) Remove
 	form#add(method='POST',action=group.url.add)
