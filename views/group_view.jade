@@ -7,10 +7,11 @@ block content
 		| . 
 		a(href=process.env.base_url + '/groups') All groups
 	p Group slug: <strong>#{group.slug}</strong>
+	
 	table.members
 		each member in members
 			tr.member
-				td.netID=member.netID
+				td.identifier.netID=member.netID
 				
 				if( !group.isAdmin( member ) )
 					td.promote.changeRole
@@ -21,6 +22,19 @@ block content
 						
 				td.delete
 					a(href=group.url.remove + '?netid=' + member.netID) Remove
+	
+	if( subgroups.length > 0 )	
+		h2 Subgroups
+		table.subgroups
+			each subgroup in subgroups
+				tr.subgroup
+					td.identifier.group
+						a(href=subgroup.url.view)=subgroup.name
+
+					td.delete
+						a(href=group.url.remove + '?who=' + subgroup.slug) Remove
+				
+	
 	form#add(method='POST',action=group.url.add)
 		h2 Add Users
 		p Enter one netID per line

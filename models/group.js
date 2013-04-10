@@ -2,10 +2,13 @@
 var mongoose = require('mongoose');
 var User = require('./user');
 
+var _ = require('../public/lib/underscore');
+
 var groupSchema = mongoose.Schema({
 	"slug": { type: String, required: true, index: { unique: true }, lowercase: true },
 	"name": String,
-	"admins": [ { type: String } ]
+	"admins": [ { type: String } ],
+	"subgroups": [ { type: String } ]
 });
 
 groupSchema.methods.addUser = function (user, cb) {
@@ -28,6 +31,31 @@ groupSchema.methods.removeUser = function (user, cb) {
 	});
 }
 
+groupSchema.methods.addGroup = function (sg, cb) {
+	this.subgroups.push( sg.slug );
+	
+	this.subgroups = _.uniq( this.subgroups );
+	
+	return this.save( function( err ) {
+		
+		sg.members({}, function( err, members ) {
+			_.each( members, function( member ) {
+				// member.regenerateGroups();
+			});
+		});
+		
+		cb( err, sg );
+	});
+}
+
+groupSchema.methods.removeGroup = function (sg, cb) {	
+	this.subgroups = _.without( this.subgroups, sg.slug );
+	
+	return this.save( function( err ) {
+		cb( err, sg );
+	});
+}
+
 groupSchema.methods.isAdmin = function ( who ) {
 	if( who.netID != null )
 	{				
@@ -35,7 +63,7 @@ groupSchema.methods.isAdmin = function ( who ) {
 		{
 			return true;
 		}
-	}	
+	}
 	
 	return false;
 }
@@ -56,6 +84,15 @@ groupSchema.methods.canAdmin = function( who ) {
 	}
 	
 	return false;
+}
+
+groupSchema.methods.getSubgroups = function (where, cb) {
+	var query = Group.find( where );
+	// 	
+	query.where('slug').in( this.subgroups );
+	// 	
+	query.exec( cb );
+	// cb()
 }
 
 groupSchema.methods.members = function (where, cb) {

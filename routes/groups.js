@@ -69,11 +69,26 @@ exports.view = {
 							}
 							else
 							{
-								res.render('group_view', {
-									title: group.name,
-									members: members,
-									group: group
+								_.each( members, function( member ) {
+									member.regenerateGroups();
 								});
+								
+								group.getSubgroups( {}, function( err, subgroups ) {
+									if( err )
+									{
+										res.send( err );
+									}
+									else
+									{										
+										res.render('group_view', {
+											title: group.name,
+											members: members,
+											subgroups: subgroups,
+											group: group
+										});
+									}
+								})
+								
 							}
 						});
 					}
@@ -205,9 +220,21 @@ exports.add = {
 						ids = ids.split('\r\n');
 
 						ids.forEach( function( id ) {
-							User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
+							// handle subgroups
+							Group.findOne( { slug: id }, function( err, sg ) {
+								if( sg != null )
+								{
+									group.addGroup( sg, function( err, sg ) {
+										console.log( sg );
+									} );
+								}
+								else
+								{
+									User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
 
-							} );
+									} );
+								}
+							} )							
 						});
 
 						res.redirect( group.url.view );
@@ -314,18 +341,30 @@ exports.remove = {
 				{
 					if( group.canAdmin( req.user ) )
 					{
-						User.findOne( {netID: req.query.netid }, function( err, user ) {
-							if( err )
-							{
-								res.send( err );
-							}
-							else
-							{
-								group.removeUser( user, function( err, user ) {
+						if( req.query.netid )
+						{
+							User.findOne( {netID: req.query.netid }, function( err, user ) {
+								if( err )
+								{
+									res.send( err );
+								}
+								else
+								{
+									group.removeUser( user, function( err, user ) {
+										res.redirect( group.url.view );
+									});
+								}
+							});
+						}
+						else
+						{
+							Group.findOne( {slug: req.query.who }, function( err, sg ) {
+								group.removeGroup( sg, function( err, sg ) {
 									res.redirect( group.url.view );
 								});
-							}
-						});
+							});
+						}
+						
 					}
 					else
 					{
