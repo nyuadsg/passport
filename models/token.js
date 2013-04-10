@@ -1,5 +1,6 @@
 // we need mongoose
 var mongoose = require('mongoose');
+var utils = require('../utils');
 
 var tokenSchema = mongoose.Schema({
 	token: String,
