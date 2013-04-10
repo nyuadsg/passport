@@ -232,6 +232,7 @@ exports.decision = [
 	// 	console.log( req.user );
 	// 	next();
 	// },
+	login.ensure,
 	server.decision()
 ]
 
