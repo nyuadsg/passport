@@ -83,7 +83,7 @@ server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
 	// });
 	Token.getToken( client.id, user.netID, function( err, token ) {
 		done( null, token );
-	})
+	});
 }));
 
 // // Exchange authorization codes for access tokens.  The callback accepts the
@@ -98,14 +98,8 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 		// if (client.id !== authCode.clientID) { return done(null, false); } // skip checks (in the future, we really need to )
 		// if (redirectURI !== authCode.redirectURI) { return done(null, false); }
 				
-		var token = new Token({
-			token: utils.uid(256),
-			clientID: authCode.clientID,
-			netID: authCode.netID
-		});
-		token.save(function(err) {
-			if (err) { return done(err); }
-			done(null, token.token);
+		Token.getToken( authCode.clientID, authCode.netID, function( err, token ) {
+			done( null, token );
 		});
 		
 	});
