@@ -29,6 +29,14 @@ var Client = require('./models/clients');
 // start app server
 var app = express();
 
+var allowCrossDomain = function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', 'access.local');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+	res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+	next();
+}
+
 // configure express
 app.configure(function(){
 	app.set('port', process.env.PORT || 5000);
@@ -42,6 +50,7 @@ app.configure(function(){
 	app.use(express.session({ key: 'passport.sess', secret: process.env.secret, maxAge: 10000 }));
 	app.use(passport.initialize());
 	app.use(passport.session());  
+	app.use(allowCrossDomain);
 	app.use(app.router);
 	app.use(require('stylus').middleware(__dirname + '/public'));
 	app.use(express.static(__dirname + '/public'));
