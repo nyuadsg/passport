@@ -72,32 +72,18 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 
 // allow for implicit grants
 server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
-	// AccessToken.create(client, user, ares.scope, function(err, accessToken) {
-	//  *         if (err) { return done(err); }
-	//  *         done(null, accessToken);
-	//  *       });
-	
-	// Client.findOne({clientID: client}, function(err, client) {
-	// 	if (err) { return done(err); }
-	// 		// WARNING: For security purposes, it is highly advisable to check that
-	// 		//          redirectURI provided by the client matches one registered with
-	// 		//          the server.  For simplicity, this example does not.  You have
-	// 		//          been warned.
-	// 	console.log( client );
-	// 	return done(null, client, redirectURI);
+	// var token = new Token({
+	// 	token: utils.uid(256),
+	// 	clientID: client.id,
+	// 	netID: user.netID
 	// });
-	
-	// console.log( client );
-	
-	var token = new Token({
-		token: utils.uid(256),
-		clientID: client.id,
-		netID: user.netID
-	});
-	token.save(function(err) {
-		if (err) { return done(err); }
-		done(null, token.token);
-	});
+	// token.save(function(err) {
+	// 	if (err) { return done(err); }
+	// 	done(null, token.token);
+	// });
+	Token.getToken( client.id, user.netID, function( err, token ) {
+		done( null, token );
+	})
 }));
 
 // // Exchange authorization codes for access tokens.  The callback accepts the

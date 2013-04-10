@@ -32,8 +32,6 @@ var app = express();
 var allowCrossDomain = function(req, res, next) {
     var oneof = false;
 
-		console.log( req.headers.origin );
-
     if(req.headers.origin) {
         res.header('Access-Control-Allow-Origin', 'http://attend.local');
         oneof = true;
