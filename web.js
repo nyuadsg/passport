@@ -209,7 +209,7 @@ app.get('/auth/google', function(req, res, next ) {
 					req.session.gscopes = client.getScopes( 'google' );
 					options.scope = _.union( options.scope, client.getScopes( 'google' ) );
 					options.accessType = 'offline'; // we need offline access to communicate these later
-					options.prompt = 'consent';
+					// options.prompt = 'consent';
 				}
 			}
 						
