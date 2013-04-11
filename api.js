@@ -16,11 +16,11 @@ var scopes = {
 }
 
 passport.use(new BearerStrategy(
-	function(accessToken, done) {		
+	function(accessToken, done) {			
 		Token.findOne({token: accessToken}, function(err, token) {
 			if (err) { return done(err); }
 			if (!token) { return done(null, false); }
-						
+								
 			// console.log( token.clientID );
 			Client.findOne( {id: token.clientID}, function( err, client ) {
 				
@@ -39,7 +39,9 @@ passport.use(new BearerStrategy(
 exports.passport = passport;
 
 exports.auth = function( req, res, next ) {
-	passport.authenticate('bearer', { session: false }, next );
+	passport.authenticate('bearer', { session: false }, next ); // this doesn't work
+	
+	// console.log( req.query.access_token );
 	
 	// console.log( req.query.client );
 	

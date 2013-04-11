@@ -8,8 +8,11 @@ var routes = require('./routes')
 	, about = require('./routes/about')
 	, person = require('./routes/person')
 	, groups = require('./routes/groups')
+	, providers = require('./routes/providers')
 	, oauth = require('./routes/oauth')
 	, auth = require('./routes/auth');
+
+var _ = require('./public/lib/underscore');	
 
 // prepare database
 var mongoose = require('mongoose');
@@ -25,6 +28,7 @@ var Group = require('./models/group');
 var AuthCode = require('./models/authcode');
 var Token = require('./models/token');
 var Client = require('./models/clients');
+var Provider = require('./models/provider');
 
 // start app server
 var app = express();
@@ -106,6 +110,9 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.base_url + '/auth/google/return'
   },
   function(accessToken, refreshToken, profile, done) {
+		
+		console.log( profile );
+		
     // ensure they are actually an NYU user
 		var valid = false;
 		var pattern=/(\w+)@nyu.edu/i;
@@ -139,24 +146,13 @@ passport.use(new GoogleStrategy({
 				}
 				else
 				{
-					// we should possibly auth with openID
+					// also store token
+					if( refreshToken )
+					{
+						Provider.create( { provider: 'google', netID: user.netID, accessToken: accessToken, refreshToken: refreshToken }, function( err, prov ) {} );
+					}
 					
-					// We should fill in names if people don't have them					
-					// if( user.name == undefined )
-					// 					{
-					// 						user.update({
-					// 							openID: identifier,
-					// 							"name": profile.name.givenName + " " + profile.name.familyName
-					// 						});
-					// 					}
-					// 					else
-					// 					{
-					// 						user.update({
-					// 							openID: identifier
-					// 						});
-					// 					}					
-					
-					done(err, user);
+					done( err, user );
 				}
 			});
 		
@@ -174,14 +170,61 @@ app.get('/', about.passport);
 app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
-app.get('/auth/google', passport.authenticate('google', {
-	scope: ['https://www.googleapis.com/auth/userinfo.email'],
-	hd: 'nyu.edu'
-}));
+// app.get('/auth/google', passport.authenticate('google', {
+// 	accessType: 'offline',
+// 	scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/calendar'],
+// 	prompt: 'consent',
+// 	hd: 'nyu.edu'
+// }));
 app.get('/auth/google/return', passport.authenticate('google', {
 	successRedirect: '/auth/finish',
 	failureRedirect: '/auth/fail'
-})); // finish the Google auth loop
+}));
+// app.get('/auth/google/return'  , function(req, res, next ) {
+// 	options = {
+// 		successRedirect: '/auth/finish',
+// 		failureRedirect: '/auth/fail'
+// 	};
+// 	
+// 	return passport.authenticate('google', options, function (err, user, info ) {
+// 		// console.log( err, user, info );
+// 	})(req, res, next);
+// });
+app.get('/auth/google', function(req, res, next ) {
+	options = {
+		'scope': ['https://www.googleapis.com/auth/userinfo.email'],
+		'hd': 'nyu.edu'
+	};
+	
+	// if( req.params );
+	// console.log( req.session );
+	if( req.session.client_id != undefined )
+	{
+		Client.findOne({clientID: req.session.client_id}, function(err, client) {
+			if (err) { return done(err); }
+			if( client != null )
+			{
+				if( client.getScopes( 'google' ).length > 0 )
+				{
+					req.session.gscopes = client.getScopes( 'google' );
+					options.scope = _.union( options.scope, client.getScopes( 'google' ) );
+					options.accessType = 'offline'; // we need offline access to communicate these later
+					options.prompt = 'consent';
+				}
+			}
+						
+			// call passport directly with some dynamic options based on `req` and `res`
+		  return passport.authenticate('google', options)(req, res, next);
+		});
+	}
+	else
+	{
+		return passport.authenticate('google', options)(req, res, next);
+	}
+} );
+
+
+// finish the Google auth loop
 app.get('/auth/finish', auth.finish);
 // -- enable logout
 app.get('/auth/logout', auth.logout);
@@ -205,6 +248,8 @@ app.post('/visa/oauth/decision', oauth.decision);
 app.post('/visa/oauth/token', oauth.token);
 // -- client/side oauth
 // app.get('/visa/oauth/simple', oauth.simple );
+// -- tokens for other services
+app.get('/visa/:provider/token', providers.token);
 // -- api
 app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);

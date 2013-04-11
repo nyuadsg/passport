@@ -32,6 +32,9 @@ groupSchema.methods.removeUser = function (user, cb) {
 }
 
 addImplicitGroups = function( group, prefix ) {
+	
+	
+	
 	group.members({}, function( err, members ) {
 		_.each( members, function( member ) {
 			member.implicit_groups.push( prefix + ':' + group.slug );

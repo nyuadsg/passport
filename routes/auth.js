@@ -1,3 +1,5 @@
+var Provider = require('../models/provider');
+
 exports.start = function(req, res){
 	if( req.query.next != undefined )
 	{
@@ -11,9 +13,17 @@ exports.start = function(req, res){
 };
 
 exports.finish = function(req, res){
+	if( req.session.gscopes != undefined )
+	{		
+		Provider.findOneAndUpdate( { provider: 'google', netID: req.user.netID, scopes: { "$size": 0 } }, { 'scopes': req.session.gscopes }, function( err ) {
+			// req.session.gscopes = null;
+		} );
+	}
+		
 	// pass people along to their final destination
 	if( req.session.next != undefined )
 	{
+		// also take this opportunity to store scopes with any Google access tokens generated		
 		// send to next, if set
 		res.redirect( req.session.next );
 	}

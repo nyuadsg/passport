@@ -5,7 +5,9 @@ var oauth2orize = require('oauth2orize')
 	, login = require('../login')
 	, url = require('url')
 	, utils = require('../utils');
-	
+
+var _ = require('../public/lib/underscore');	
+
 // api
 var api = require('../api');
 
@@ -122,7 +124,39 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 // authorization).  We accomplish that here by routing through `ensureLoggedIn()`
 // first, and rendering the `dialog` view. 
 
+fileScopesForPickup = function( req ) {
+	gscopes = [];
+	
+	scopes = _.filter( req.oauth2.client.scopes, function( scope ) {
+		gscope = scope.replace( "google:", "" )
+		if( gscope == scope )
+		{
+			return true;
+		}
+		else
+		{
+			gscopes.push( gscope );
+			return false;
+		}
+	});
+	
+	if( gscopes.length > 0 )
+	{
+		scopes.push( 'google' );
+		
+		// store gscopes to the session, for later pickup
+		req.session.gscopes = gscopes;
+	}
+		
+	return scopes;
+}
+
 exports.authorization = [
+	// this function just stores a clientID
+	function( req, res, next ) {
+		req.session.client_id = req.query.client_id;
+		next();
+	},
 	login.ensure,
 	server.authorization(function(clientID, redirectURI, done) {
 		Client.findOne({clientID: clientID}, function(err, client) {
@@ -135,6 +169,8 @@ exports.authorization = [
 		});
 	}),
 	function(req, res, next){
+		fileScopesForPickup( req );
+		
 		// check if client is preauthed
 		if( req.oauth2.client.trusted )
 		{
@@ -145,7 +181,7 @@ exports.authorization = [
 	      loadTransaction: false
 	    })(req, res, next);
 		}
-		
+				
 		// check for previous authorization
 		return AuthCode.findOne({clientID: req.oauth2.client.id, netID: req.user.netID}, function(err, authCode) {
 						
@@ -166,10 +202,12 @@ exports.authorization = [
 		});
 	},
 	function(req, res, next){
-		res.render("dialog", {
+		// scopes = req.oauth2.client.scopes
+						
+		res.render("dialog", {			
 			title: "Access Authorization",
 			Client: req.oauth2.client,
-			Scopes: req.oauth2.client.scopes,
+			Scopes: req.oauth2.client.getScopes('display'),
 			Transaction: req.oauth2.transactionID,
 			api: api
 		});
@@ -228,23 +266,3 @@ exports.token = [
 	server.token(),
 	server.errorHandler()
 ]
-
-// helper to chose the proper flow
-// (normal or clientside)
-exports.begin = function( req, res ) {
-	
-	query = req.query;
-	
-	// token-based, so start our fancy little bit
-	if( req.query.response_type == 'token' )
-	{
-		// save original redirect
-		req.session.next = query.redirect_uri;
-		
-		// change query
-		query.response_type = 'code';
-		query.redirect_uri = process.env.base_url + '/visa/oauth/end';
-	}
-	
-	res.send( query );
-}
