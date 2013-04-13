@@ -5,24 +5,7 @@ var api = require('../api');
 
 var _ = require('../public/lib/underscore');
 
-// this should be replaced with a group
-access_admin = [
-	login.ensure,
-	function(req, res, next) {
-		if( req.user == undefined )
-		{
-			res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
-		}	
-		else if( !req.user.isIn( 'see-groups' ) && !req.user.isIn( 'admins' ) )
-		{			
-			res.redirect(  process.env.base_url );
-		}
-		else
-		{
-			next();
-		}
-	}
-]
+access_admin = login.access_admin;
 
 exports.list = {
 	gui: [

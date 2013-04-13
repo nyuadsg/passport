@@ -1,0 +1,26 @@
+extends layout
+
+block content
+	h1= title
+	a(href=process.env.base_url + '/groups') All groups
+	
+	form.form-horizontal#edit(method='POST',action=action)
+		.control-group.netID
+			label.control-label(for='netID') NetID
+			.controls
+				input#netID(name='netID',type='text',value=user.netID)
+		.control-group.name
+			label.control-label(for='name') Name
+			.controls
+				input#name(name='name',type='text',value=user.name)
+		if( user.groups )
+			.control-group.groups
+				label.control-label(for='groups') Groups
+				.controls
+					ul
+					each group in user.groups
+						li
+							a(href=process.env.base_url + '/groups/' + group + '/view')=group
+		.control-group.save
+			.controls
+				input.btn.btn-primary(type='submit',value='Save')

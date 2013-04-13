@@ -111,7 +111,7 @@ passport.use(new GoogleStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
 		
-		console.log( profile );
+		// console.log( profile );
 		
     // ensure they are actually an NYU user
 		var valid = false;
@@ -232,8 +232,13 @@ app.get('/auth/logout', auth.logout);
 app.get('/person/me', person.me);
 // app.get('/person/update', person.update);
 app.get('/person/list', person.list.index);
+app.get('/person/create', person.create.gui);
+app.post('/person/create', person.create.save);
+app.get('/person/edit', person.edit.gui);
+app.post('/person/edit', person.edit.update);
 app.get('/person/list/:school/:class/:select', person.list.view);
 // -- groups
+app.get('/people', groups.list.gui);
 app.get('/groups', groups.list.gui);
 app.post('/groups/new', groups.new.gui);
 app.get('/groups/:slug/view', groups.view.gui);
@@ -254,6 +259,7 @@ app.get('/visa/:provider/token', providers.token);
 app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);
 app.get('/api/info/profile/:netID', person.api.profile);
+app.get('/api/person/query', person.api.query);
 // -- api / group
 app.get('/api/group/new', groups.new.api);
 app.get('/api/group/add', groups.add.api);

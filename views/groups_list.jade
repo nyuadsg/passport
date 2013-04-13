@@ -1,7 +1,19 @@
 extends layout
 
+block scripts
+	script(src='/javascripts/admin.js')
+
 block content
 	h1= title
+		
+	form.form-horizontal#lookup(method='GET',action=process.env.base_url + '/person/edit')
+		p Find and edit a user.
+		input.name#who(type='text',name='who',autocomplete='off',placeholder='Name/NetID')
+	
+	a.btn(href=process.env.base_url + '/person/create') New User
+	
+	hr
+	
 	p Here are all groups. 
 		a(href='#new') New group
 	table

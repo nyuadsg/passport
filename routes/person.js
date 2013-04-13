@@ -1,30 +1,15 @@
 var User = require('../models/user');
 var Group = require('../models/group');
 var api = require('../api');
+var login = require('../login');
+var _ = require('../public/lib/underscore');
 
 /*
  * GET users listing.
  */
 
 
-access_admin = function(req, res, next) {
-	admins = ["mp3255","lmr439","bmb351"]
-	
-	console.log( req.user );
-	
-	if( req.user == undefined )
-	{
-		res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
-	}
-	else if( admins.indexOf( req.user.netID) == -1)
-	{
-		res.redirect(  process.env.base_url );
-	}
-	else
-	{
-		next();
-	}
-}
+access_admin = login.access_admin;
 
 // custom method for updating data
 // exports.update = [
@@ -109,7 +94,117 @@ exports.me = function( req, res ) {
 	}
 }
 
+exports.create = {
+	gui: [
+		login.ensure,
+		login.access_admin,
+		function( req, res, next ) {
+			res.render( 'edit_user', {
+				title: 'Create User',
+				action: process.env.base_url + '/person/create',
+				user: {}
+			});
+			
+		}
+	],
+	save: [
+		login.ensure,
+		login.access_admin,
+		function( req, res, next ) {
+			
+			User.create( {
+				'name': req.body.name,
+				'netID': req.body.netID
+			}, function( err, user ) {
+				res.redirect( process.env.base_url + '/person/edit?who=' + user.netID );
+			});
+		}
+	],
+}
+
+exports.edit = {
+	gui: [
+		login.ensure,
+		login.access_admin,
+		function( req, res, next ) {
+			term = req.query.who;
+			
+			where = {'$or': [
+				{ 'name': { '$regex': term + '.*', $options: 'i' } },
+				{ 'netID': { '$regex': term + '.*', $options: 'i' } },
+			] };
+			
+			User.findOne( where, function( err, user ) {				
+				res.render( 'edit_user', {
+					title: 'Edit User',
+					action: process.env.base_url + '/person/edit?who=' + user.netID,
+					user: user
+				});
+			} );
+			
+		}
+	],
+	update: [
+		login.ensure,
+		login.access_admin,
+		function( req, res, next ) {
+			term = req.query.who;
+			
+			where = {'$or': [
+				{ 'name': { '$regex': term + '.*', $options: 'i' } },
+				{ 'netID': { '$regex': term + '.*', $options: 'i' } },
+			] };
+			
+			User.findOne( where, function( err, user ) {				
+				user.name = req.body.name;
+				user.netID = req.body.netID;
+				
+				user.save( function( err, user ) {
+					res.redirect( process.env.base_url + '/person/edit?who=' + user.netID );
+				});
+			});
+		}
+	],
+}
+
 exports.api = {
+	query: [
+		login.ensure,
+		login.access_admin,
+		function( req, res, next ) {
+			term = req.query.term;
+			type = req.query.type
+
+			responses = [];
+			
+			where = {'$or': [
+				{ 'name': { '$regex': term + '.*', $options: 'i' } },
+				{ 'netID': { '$regex': term + '.*', $options: 'i' } },
+			] };
+			
+			User.find( where, function( err, users ) {				
+				_.each(users, function (user ) {
+					
+					if( type == 'simple' )
+					{
+						if( user.name == null ) {
+							responses.push( user.netID );
+						}
+						else {
+							responses.push( user.name );
+						}
+					}
+					else
+					{
+						responses.push( user );
+					}					
+				} );
+
+				res.send( responses );
+			} );
+			
+		}
+	],
 	me: [
 		api.passport.authenticate('bearer', { session: false }),
 		function( req, res ) {
