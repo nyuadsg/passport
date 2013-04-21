@@ -16,7 +16,7 @@ var _ = require('./public/lib/underscore');
 
 // prepare database
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOURL || process.env.MONGOLAB_URI || process.env.MONGOHQ_URLL || 'mongodb://localhost/test');
+mongoose.connect(process.env.MONGOURL || process.env.MONGOLAB_URI || process.env.MONGOHQ_URLL || 'mongodb://localhost/passport');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -33,15 +33,7 @@ var Provider = require('./models/provider');
 // start app server
 var app = express();
 
-var allowCrossDomain = function(req, res, next) {
-    // res.header('Access-Control-Allow-Origin', 'http://access.local');
-    // res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    // res.header('Access-Control-Allow-Headers', 'Content-Type');
-
-		// res.header("Access-Control-Allow-Origin", "*");
-		// res.header("Access-Control-Allow-Headers", "X-Requested-With");
-		// 
-		
+var allowCrossDomain = function(req, res, next) {		
 		var oneof = false;
     if(req.headers.origin) {
         res.header('Access-Control-Allow-Origin', '*');

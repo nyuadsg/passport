@@ -1,6 +1,7 @@
 // we need mongoose
 var mongoose = require('mongoose');
 var User = require('./user');
+var async = require('async');
 
 var _ = require('../public/lib/underscore');
 
@@ -8,33 +9,45 @@ var groupSchema = mongoose.Schema({
 	"slug": { type: String, required: true, index: { unique: true }, lowercase: true },
 	"name": String,
 	"admins": [ { type: String } ],
-	"subgroups": [ { type: String } ]
+	"subgroups": [ { type: String } ],
+	"explicit_members": [ { type: String } ]
 });
 
-groupSchema.methods.addUser = function (user, cb) {
-	user.groups.push( this.slug );
-	return user.save( function( err ) {
-		cb( err, user );
+groupSchema.methods.addUser = function (netID, cb) {	
+	this.update( { $addToSet: { "explicit_members": netID } }, {}, function( err ) {
+		// rebuild map/reduce
+		Group.updateMR();
+		
+		cb( err );
 	});
+	
+	// also make sure the user exists
+	User.findOneAndUpdate( { netID: netID }, { netID: netID }, { upsert: true }, function( err, user ) {
+		// no callback; this could fail silently
+	} );
 }
 
 groupSchema.methods.removeUser = function (user, cb) {
-	groups = user.groups;
-	for(var i in groups){
-		if(groups[i] == this.slug){
-			groups.splice(i,1);
-		}
-	}
-	user.groups = groups;
-	return user.save( function( err ) {
-		cb( err, user );
-	});
+	this.update( { $pull: { "explicit_members": user.netID } }, {}, function( err ) {
+		// rebuild map/reduce
+		Group.updateMR();
+		
+		cb( err );
+	});	
+	
+// 	groups = user.groups;
+// 	for(var i in groups){
+// 		if(groups[i] == this.slug){
+// 			groups.splice(i,1);
+// 		}
+// 	}
+// 	user.groups = groups;
+// 	return user.save( function( err ) {
+// 		cb( err, user );
+// 	});
 }
 
 addImplicitGroups = function( group, prefix ) {
-	
-	
-	
 	group.members({}, function( err, members ) {
 		_.each( members, function( member ) {
 			member.implicit_groups.push( prefix + ':' + group.slug );
@@ -81,15 +94,15 @@ groupSchema.methods.isAdmin = function ( who ) {
 	return false;
 }
 
-groupSchema.methods.canAdmin = function( who ) {	
+groupSchema.methods.canAdmin = function( who ) {		
 	if( this.isAdmin( who ) )
-	{
+	{		
 		return true;
 	}
 	
 	// check for admins
 	if( who.netID != null )
-	{
+	{		
 		if( who.isIn( 'admins' ) )
 		{
 			return true;
@@ -112,6 +125,14 @@ groupSchema.methods.members = function (where, cb) {
 	var query = User.find( where );
 		
 	query.where('groups').all([ this.slug ]);
+		
+	query.exec( cb );
+}
+
+groupSchema.methods.getExplicitMembers = function (where, options, cb) {
+	var query = User.find( where );
+
+	query.where('netID').in( this.explicit_members );
 		
 	query.exec( cb );
 }
@@ -159,6 +180,63 @@ groupSchema.statics.newGroup = function( name, slug, cb ) {
 		{
 			cb( group );
 		}
+	});
+}
+
+// regenerate the member_groups table
+groupSchema.statics.updateMR = function( cb ) {	
+	var o = {
+		map: function() {			
+			g = this;
+			
+			if( this.explicit_members )
+			{
+				this.explicit_members.forEach( function( netID ) {
+					emit( netID, g.slug );
+				} );
+			}
+		},
+		reduce: function( key, values ) {
+			return {
+				groups: values
+			};
+		},
+		finalize: function( key, values ) {
+			if( typeof values == "string" )
+			{
+				return {
+					groups: [ values ]
+				}
+			}
+			else
+			{
+				return values;
+			}
+		},
+		out: { replace: 'user_groups' }
+	};
+	
+	console.log( 'start map/reduce of groups' );
+	
+	Group.mapReduce(o, function (err, results) {
+		// cool, now send these reduced groups into the user collection
+		
+		// console.log( "mapping into the main users collection" );
+		// 
+		// // console.log( results );
+		// 
+		// async.each( results, function( result, cb ) {
+		// 	// console.log( result );
+		// 	// console.log( result );
+		// 	// immediate callback
+		// 	cb();
+		// 	User.update( { netID: result._id }, {"$set": { "groups": result.value.groups } }, {}, function( err ) {
+		// 		// console.log( err );
+		// 	} );
+		// });
+		// 
+		// console.log( 'done?' );
+		
 	});
 }
 

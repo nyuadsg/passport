@@ -134,7 +134,7 @@ exports.edit = {
 				{ 'netID': { '$regex': term + '.*', $options: 'i' } },
 			] };
 			
-			User.findOne( where, function( err, user ) {				
+			User.fetch( where, function( err, user ) {				
 				res.render( 'edit_user', {
 					title: 'Edit User',
 					action: process.env.base_url + '/person/edit?who=' + user.netID,
@@ -155,7 +155,7 @@ exports.edit = {
 				{ 'netID': { '$regex': term + '.*', $options: 'i' } },
 			] };
 			
-			User.findOne( where, function( err, user ) {				
+			User.fetch( where, function( err, user ) {				
 				user.name = req.body.name;
 				user.netID = req.body.netID;
 				
@@ -232,7 +232,7 @@ exports.api = {
 			function( req, res ) {
 				var netID = req.params.netID;
 
-				User.findOne({ netID: netID }, function (err, user) {
+				User.fetch({ netID: netID }, function (err, user) {
 					if( user == null ) {
 						api.respond( res, { type: 'user.notexist', message: "user does not exist" } );
 					}

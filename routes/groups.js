@@ -7,6 +7,21 @@ var _ = require('../public/lib/underscore');
 
 access_admin = login.access_admin;
 
+function convert() {
+	User.find({}, function( err, users ) {
+		console.log( 'starting conversion' );
+		_.each( users, function( usr ) {
+			// console.log( usr.groups );
+			Group.update( { 'slug': { '$in': usr.groups } }, { $addToSet: { "explicit_members": usr.netID } }, { multi: true }, function( err ) {
+				console.log( err, 'done with '+ usr.netID );
+			});
+			// console.log( usr );
+		} );
+	});
+}
+
+// convert();
+
 exports.list = {
 	gui: [
 		access_admin,
@@ -35,7 +50,7 @@ exports.list = {
 exports.view = {
 	gui: [
 		login.ensure,
-		function( req, res ) {
+		function( req, res ) {			
 			Group.findOne( {slug: req.params.slug }, function( err, group ) {	
 				if( group.canAdmin( req.user ) )
 				{
@@ -45,13 +60,14 @@ exports.view = {
 					}
 					else
 					{
-						group.members( {}, function( err, members ) {
+						group.getExplicitMembers( {}, {}, function( err, members ) {
 							if( err )
 							{
 								res.send( err );
 							}
 							else
-							{								
+							{
+								// console.log( 'er' );										
 								group.getSubgroups( {}, function( err, subgroups ) {
 									if( err )
 									{
@@ -106,8 +122,8 @@ exports.new = {
 			{
 				Group.newGroup( req.body.name, req.body.slug, function( group ) {
 					// add myself as an admin
-					group.addUser( req.user, function( err, user ) {
-						group.admins.push( user.netID );
+					group.addUser( req.user.netID, function( err, user ) {
+						group.admins.push( req.user.netID );
 						group.save( function() {
 							res.redirect( group.url.view );
 						});
@@ -209,9 +225,12 @@ exports.add = {
 								}
 								else
 								{
-									User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
-
-									} );
+									group.addUser( id, function( err ) {
+										
+									});
+									// User.findOneAndUpdate( { netID: id }, { $push: { groups: group.slug } }, { upsert: true }, function( err, us ) {
+									// 
+									// } );
 								}
 							} )							
 						});

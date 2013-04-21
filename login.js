@@ -4,7 +4,7 @@ exports.ensure = function(req, res, next) {
 	
 	if( process.env.DEV_USER != undefined && process.env.DEV_USER != 'none' )
 	{
-		User.findOne( { netID: process.env.DEV_USER }, function( err, user ) {						
+		User.fetch( process.env.DEV_USER, function( err, user ) {						
 			req.user = user;
 			
 			next();

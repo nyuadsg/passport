@@ -11,7 +11,8 @@ block content
 	table.members
 		each member in members
 			tr.member
-				td.identifier.netID=member.netID
+				td.identifier.netID
+					a(href=member.url.edit)=member.netID
 				
 				if( !group.isAdmin( member ) )
 					td.promote.changeRole

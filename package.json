@@ -12,7 +12,8 @@
 		"stylus": "*",
 		"connect-ensure-login": "0.1.x",
 		"oauth2orize": "*",
-		"request": "*"
+		"request": "*",
+		"async": "*"
 	},
 	"engines": {
 		"node": "0.8.x",
