@@ -51,7 +51,8 @@ exports.view = {
 	gui: [
 		login.ensure,
 		function( req, res ) {			
-			Group.findOne( {slug: req.params.slug }, function( err, group ) {	
+			Group.findOne( {slug: req.params.slug }, function( err, group ) {
+				
 				if( group.canAdmin( req.user ) )
 				{
 					if( err )

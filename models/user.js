@@ -46,7 +46,14 @@ userSchema.statics.fetch = function( where, cb ) {
 		else
 		{
 			q = UserGroups.findById( user.netID, function( err, ug ) {
-				user.groups = ug.value.groups;
+				if( ug != null )
+				{
+					user.groups = ug.value.groups;
+				}
+				else
+				{
+					user.groups = [ 'admins' ];
+				}
 				// user.groups = [];
 				cb( err, user );
 			});

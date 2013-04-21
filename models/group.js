@@ -10,7 +10,8 @@ var groupSchema = mongoose.Schema({
 	"name": String,
 	"admins": [ { type: String } ],
 	"subgroups": [ { type: String } ],
-	"explicit_members": [ { type: String } ]
+	"explicit_members": [ { type: String } ],
+	"all_members": [ { type: String } ]
 });
 
 groupSchema.methods.addUser = function (netID, cb) {	
@@ -48,12 +49,12 @@ groupSchema.methods.removeUser = function (user, cb) {
 }
 
 addImplicitGroups = function( group, prefix ) {
-	group.members({}, function( err, members ) {
-		_.each( members, function( member ) {
-			member.implicit_groups.push( prefix + ':' + group.slug );
-			member.save( function() {} );
-		});
-	});
+	// group.members({}, function( err, members ) {
+	// 	_.each( members, function( member ) {
+	// 		member.implicit_groups.push( prefix + ':' + group.slug );
+	// 		member.save( function() {} );
+	// 	});
+	// });
 }
 
 groupSchema.methods.addGroup = function (sg, cb) {
@@ -129,6 +130,42 @@ groupSchema.methods.members = function (where, cb) {
 	query.exec( cb );
 }
 
+// gets all members, including implicit members
+groupSchema.methods.getMembers = function (cb) {
+	// console.log( this.name );
+	// console.log( this.explicit_members );
+	members = this.explicit_members;
+	
+	sug = this;
+	
+	if( this.subgroups.length == 0 ) {
+		cb( null, members );
+	}
+	else
+	{
+		this.getSubgroups({}, function( err, subgroups ) {
+			async.mapSeries(
+				subgroups,
+				function( sg, next ) {
+
+					sg.getMembers( function( err, sgmmbrs ) {
+						next( err, sgmmbrs );
+					});
+				},
+				function( err, mmbrs ) {
+					// console.log( mmbrs );
+
+					members = members.concat( mmbrs );
+					members = _.flatten( members );
+					members = _.uniq( members );
+
+					cb( err, members );
+				}
+			);
+		});
+	}
+}
+
 groupSchema.methods.getExplicitMembers = function (where, options, cb) {
 	var query = User.find( where );
 
@@ -184,59 +221,84 @@ groupSchema.statics.newGroup = function( name, slug, cb ) {
 }
 
 // regenerate the member_groups table
-groupSchema.statics.updateMR = function( cb ) {	
-	var o = {
-		map: function() {			
-			g = this;
-			
-			if( this.explicit_members )
-			{
-				this.explicit_members.forEach( function( netID ) {
-					emit( netID, g.slug );
-				} );
+groupSchema.statics.updateMR = function( cb ) {
+	Group.find({}, function( err, groups ) {
+		async.each(
+			groups,
+			function( g, cb ) {
+				g.getMembers( function( err, members ) {
+					g.update( { "$set": { "all_members": members } }, {}, function( err ) {
+						cb();
+					});
+				});
+			},
+			function( err ) {
+				// console.log( groups );
+				
+				// console.log( groups );
+				var o = {
+					map: function() {			
+						g = this;
+
+						// mLog( this );
+
+						if( this.all_members )
+						{
+							this.all_members.forEach( function( netID ) {
+								emit( netID, g.slug );
+							} );	
+						}
+
+					},
+					reduce: function( key, values ) {
+						return {
+							groups: values
+						};
+					},
+					finalize: function( key, values ) {
+						if( typeof values == "string" )
+						{
+							return {
+								groups: [ values ]
+							}
+						}
+						else
+						{
+							return values;
+						}
+					},
+					out: { replace: 'user_groups' }
+				};
+
+				Group.mapReduce(o, function (err, results) {		
+					if( err )
+					{
+						console.log( err );
+					}
+
+					// console.log( results );
+
+					// cool, now send these reduced groups into the user collection
+
+					// console.log( "mapping into the main users collection" );
+					// 
+					// // console.log( results );
+					// 
+					// async.each( results, function( result, cb ) {
+					// 	// console.log( result );
+					// 	// console.log( result );
+					// 	// immediate callback
+					// 	cb();
+					// 	User.update( { netID: result._id }, {"$set": { "groups": result.value.groups } }, {}, function( err ) {
+					// 		// console.log( err );
+					// 	} );
+					// });
+					// 
+					// console.log( 'done?' );
+
+				});
 			}
-		},
-		reduce: function( key, values ) {
-			return {
-				groups: values
-			};
-		},
-		finalize: function( key, values ) {
-			if( typeof values == "string" )
-			{
-				return {
-					groups: [ values ]
-				}
-			}
-			else
-			{
-				return values;
-			}
-		},
-		out: { replace: 'user_groups' }
-	};
-	
-	console.log( 'start map/reduce of groups' );
-	
-	Group.mapReduce(o, function (err, results) {
-		// cool, now send these reduced groups into the user collection
-		
-		// console.log( "mapping into the main users collection" );
-		// 
-		// // console.log( results );
-		// 
-		// async.each( results, function( result, cb ) {
-		// 	// console.log( result );
-		// 	// console.log( result );
-		// 	// immediate callback
-		// 	cb();
-		// 	User.update( { netID: result._id }, {"$set": { "groups": result.value.groups } }, {}, function( err ) {
-		// 		// console.log( err );
-		// 	} );
-		// });
-		// 
-		// console.log( 'done?' );
-		
+		);
 	});
 }
 
