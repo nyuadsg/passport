@@ -64,12 +64,9 @@ groupSchema.methods.addGroup = function (sg, cb) {
 	
 	this.subgroups = _.uniq( this.subgroups );
 	
-	// add implicit groups
-	
-	
 	return this.save( function( err ) {
 		
-		addImplicitGroups( sg, slug )
+		Group.updateMR();
 				
 		cb( err, sg );
 	});
@@ -79,6 +76,8 @@ groupSchema.methods.removeGroup = function (sg, cb) {
 	this.subgroups = _.without( this.subgroups, sg.slug );
 	
 	return this.save( function( err ) {
+		Group.updateMR();
+		
 		cb( err, sg );
 	});
 }
