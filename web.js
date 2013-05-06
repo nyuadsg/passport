@@ -122,7 +122,7 @@ passport.use(new GoogleStrategy({
 		}
 		if( valid )
 		{
-			User.findOne({ netID: netID }, function (err, user) {
+			User.fetch({ netID: netID }, function (err, user) {
 				if( user == null ) 
 				{
 					done( null, false );

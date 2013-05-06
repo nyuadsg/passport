@@ -274,27 +274,6 @@ groupSchema.statics.updateMR = function( cb ) {
 					{
 						console.log( err );
 					}
-
-					// console.log( results );
-
-					// cool, now send these reduced groups into the user collection
-
-					// console.log( "mapping into the main users collection" );
-					// 
-					// // console.log( results );
-					// 
-					// async.each( results, function( result, cb ) {
-					// 	// console.log( result );
-					// 	// console.log( result );
-					// 	// immediate callback
-					// 	cb();
-					// 	User.update( { netID: result._id }, {"$set": { "groups": result.value.groups } }, {}, function( err ) {
-					// 		// console.log( err );
-					// 	} );
-					// });
-					// 
-					// console.log( 'done?' );
-
 				});
 			}
 		);
