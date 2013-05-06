@@ -250,6 +250,7 @@ app.get('/visa/:provider/token', providers.token);
 // -- api
 app.get('/visa/use/info/me', person.api.me);
 app.get('/visa/use/info/profile/:netID', person.api.profile);
+app.get('/api/info/me', person.api.me);
 app.get('/api/info/profile/:netID', person.api.profile);
 app.get('/api/person/query', person.api.query);
 // -- api / group
