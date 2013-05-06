@@ -123,6 +123,8 @@ passport.use(new GoogleStrategy({
 		if( valid )
 		{
 			User.fetch({ netID: netID }, function (err, user) {
+				// console.log( user );
+				
 				if( user == null ) 
 				{
 					done( null, false );

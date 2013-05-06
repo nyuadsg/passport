@@ -24,7 +24,7 @@ passport.use(new BearerStrategy(
 			// console.log( token.clientID );
 			Client.findOne( {id: token.clientID}, function( err, client ) {
 				
-				User.findOne({netID: token.netID}, function( err, user) {					
+				User.fetch({netID: token.netID}, function( err, user) {					
 					if (err) { return done(err); }
 					if (!user) { return done(null, false); }
 					var info = { client: client.id, scopes: client.scopes };
