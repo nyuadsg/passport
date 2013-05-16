@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	h1= title
+	p Please wait a moment...
+	
+	img(src=google)
+	
+	script
+		window.onload = function() {
+			window.location = "#{next}";
+		}
