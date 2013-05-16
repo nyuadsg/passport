@@ -38,29 +38,49 @@ passport.use(new BearerStrategy(
 
 exports.passport = passport;
 
-exports.auth = function( req, res, next ) {
-	passport.authenticate('bearer', { session: false }, next ); // this doesn't work
-	
-	// console.log( req.query.access_token );
-	
-	// console.log( req.query.client );
-	
-	// res.send( 'error' );
-	
-	// api.passport.authenticate('bearer', { session: false })
-	Client.findOne({ clientID: req.query.client, clientSecret: req.query.secret }, function( err, client ) {
-		if (err || client == null) {
-			res.send('Unauthorized')
+
+exports.auth = function(req, res, next) {
+  passport.authenticate('bearer', { session: false }, function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { // auth fallback
+			Client.findOne({ clientID: req.query.client, clientSecret: req.query.secret }, function( err, client ) {
+				if (err || client == null) {
+					res.send('Unauthorized')
+				}
+				else
+				{
+					req.authInfo ={
+						scopes: client.scopes
+					};
+					next();
+				}
+			});
 		}
-		else
+    else
 		{
-			req.authInfo ={
-				scopes: client.scopes
-			};
 			next();
 		}
-	});
-}
+  })(req, res, next);
+};
+
+// exports.auth = function( req, res, next ) {
+// 	passport.authenticate('bearer', { session: false }, function( req, res, next ) {
+// 		
+// 	} ), // check with bearer
+// }
+// 	function( req, res, next ) {
+// 
+// 		// console.log( req.query.access_token );
+// 
+// 		// console.log( req.query.client );
+// 
+// 		// res.send( 'error' );
+// 
+// 		// api.passport.authenticate('bearer', { session: false })
+
+// 	}
+// ]
+
 
 exports.respond = function( res, output ) {
 	res.json( output );

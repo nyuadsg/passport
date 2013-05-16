@@ -57,7 +57,19 @@ exports.fail = function(req,res){
 exports.logout = function( req, res ) {
 	req.logout();
 	
-	var redir = 'https://accounts.google.com/logout';
+	if( req.query.next != undefined )
+	{
+		// set where they should continue onto
+		next = req.query.next;
+	}
+	else
+	{
+		next = 'https://start.nyu.edu';
+	}
 	
-	res.redirect( redir );
+	res.render("auth_logout", {
+		title: "Logging out",
+		google: 'https://accounts.google.com/logout',
+		next: next
+	});
 }
