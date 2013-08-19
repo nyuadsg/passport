@@ -228,13 +228,13 @@ exports.api = {
 			api.respond( res, profile);
 		}],
 	profile: 	[
-			api.auth,
+            // api.auth,
 			function( req, res ) {
 				var netID = req.params.netID;
 
 				User.fetch({ netID: netID }, function (err, user) {
-					if( user == null ) {
-						api.respond( res, { type: 'user.notexist', message: "user does not exist" } );
+					if( err || user == null ) {
+						api.error( res, 'user.notexist', "user does not exist" );
 					}
 					else
 					{

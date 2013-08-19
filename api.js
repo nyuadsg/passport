@@ -86,6 +86,13 @@ exports.respond = function( res, output ) {
 	res.json( output );
 }
 
+exports.error = function( res, type, message ) {
+	res.json( {
+	    error: type,
+	    message: message
+	} );
+}
+
 exports.scope_name= function( scope ) {
 	return scopes[scope];
 }

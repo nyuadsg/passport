@@ -41,22 +41,26 @@ userSchema.statics.fetch = function( where, cb ) {
 	
 	User.findOne( where, function( err, user ) {
 		if( err ) {
-			cb( err );
+			cb( err, null );
 		}
 		else
 		{
-			q = UserGroups.findById( user.netID, function( err, ug ) {
-				if( ug != null )
-				{
-					user.groups = ug.value.groups;
-				}
-				else
-				{
-					user.groups = [ 'admins' ];
-				}
-				// user.groups = [];
-				cb( err, user );
-			});
+		    if (user == null) {
+		        cb('missing', null);
+		    } else {
+		        q = UserGroups.findById( user.netID, function( err, ug ) {
+    				if( ug != null )
+    				{
+    					user.groups = ug.value.groups;
+    				}
+    				else
+    				{
+    					user.groups = [ 'admins' ];
+    				}
+    				// user.groups = [];
+    				cb( err, user );
+    			});
+		    }
 		}
 	})
 }
