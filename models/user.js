@@ -6,10 +6,6 @@ var _ = require('../public/lib/underscore');
 
 var userSchema = mongoose.Schema({
 	netID: String,
-	openID: String,
-	"class": Number,
-	school: String,
-	'site': {type: String, default: 'AD'}, // the site the person is currently studying at
 	"name": String,
 	"groups": [ { type: String } ]
 });
