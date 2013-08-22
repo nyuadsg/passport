@@ -215,13 +215,6 @@ exports.api = {
 			if( api.can( 'user.me.name', req.authInfo.scopes ) ) {
 				profile.name = req.user.name
 			}
-			if( api.can( 'user.me.class', req.authInfo.scopes ) ) {
-				profile.class = req.user.class
-			}
-			if( api.can( 'user.me.school', req.authInfo.scopes ) ) {
-				profile.school = req.user.school;
-				profile.site = req.user.site;
-			}
 			if( api.can( 'user.me.groups', req.authInfo.scopes ) ) {
 				profile.groups = req.user.groups;
 			}
@@ -242,9 +235,6 @@ exports.api = {
 						
 						profile.netID = user.netID;
 						profile.name = user.name;
-						profile.class = user.class;
-						profile.school = user.school;
-						profile.site = user.site;
 						profile.groups = user.groups;
 						
 						api.respond( res, profile );

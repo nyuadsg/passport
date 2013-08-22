@@ -7,11 +7,8 @@ var Client = require('./models/clients');
 
 var scopes = {
 	'user.me.netID': 'Know your netID',
-	'user.me.class': 'Know your graduation year',
 	'user.me.name': 'Know your name',
-	'user.me.school': 'Know your school at NYU',
 	'user.me.groups': 'Manage groups you are in',
-	'groups.add': 'Create new groups',
 	'groups.manage': 'Manage group memberships'
 }
 
