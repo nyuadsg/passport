@@ -125,7 +125,7 @@ passport.use(new GoogleStrategy({
 				    // create a new user	    
                     var user = new User({
                         netID: netID,
-                        name: profile.name.givenName + profile.name.familyName
+                        name: profile.name.givenName + ' ' + profile.name.familyName
                     });
                     user.save(function() {
                         done(err, user);
