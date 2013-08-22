@@ -95,20 +95,17 @@ passport.deserializeUser(function(id, done) {
 	});
 });
 
-
+// Authentication componennt
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_ID,
     clientSecret: process.env.GOOGLE_SECRET,
     callbackURL: process.env.base_url + '/auth/google/return'
   },
   function(accessToken, refreshToken, profile, done) {
-		
-		// console.log( profile );
-		
     // ensure they are actually an NYU user
 		var valid = false;
 		var pattern=/(\w+)@nyu.edu/i;
-				
+						
 		for (var i=0; i<profile.emails.length; i++)
 		{
 			// address is from NYU
@@ -122,31 +119,27 @@ passport.use(new GoogleStrategy({
 		}
 		if( valid )
 		{
-			User.fetch({ netID: netID }, function (err, user) {
-				// console.log( user );
-				
+			User.fetch({ netID: netID }, function (err, user) {				
 				if( user == null ) 
 				{
-					done( null, false );
-					// var user = new User({
-					// 	netID: netID,
-					// 	openID: identifier,
-					// 	givenName: profile.name.givenName,
-					// 	familyName: profile.name.familyName,
-					// });
-					// user.save(function() {
-					// 	done(err, user);
-					// });
+				    // create a new user	    
+                    var user = new User({
+                        netID: netID,
+                        name: profile.name.givenName + profile.name.familyName
+                    });
+                    user.save(function() {
+                        done(err, user);
+                    });
 				}
 				else
 				{
-					// also store token
-					if( refreshToken )
-					{
-						Provider.create( { provider: 'google', netID: user.netID, accessToken: accessToken, refreshToken: refreshToken }, function( err, prov ) {} );
-					}
-					
 					done( err, user );
+				}
+				
+				// also store token
+				if( refreshToken )
+				{
+					Provider.create( { provider: 'google', netID: netID, accessToken: accessToken, refreshToken: refreshToken }, function( err, prov ) {} );
 				}
 			});
 		
@@ -164,34 +157,18 @@ app.get('/', about.passport);
 app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
-// app.get('/auth/google', passport.authenticate('google', {
-// 	accessType: 'offline',
-// 	scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/calendar'],
-// 	prompt: 'consent',
-// 	hd: 'nyu.edu'
-// }));
+
+// --- Google
 app.get('/auth/google/return', passport.authenticate('google', {
 	successRedirect: '/auth/finish',
 	failureRedirect: '/auth/fail'
 }));
-// app.get('/auth/google/return'  , function(req, res, next ) {
-// 	options = {
-// 		successRedirect: '/auth/finish',
-// 		failureRedirect: '/auth/fail'
-// 	};
-// 	
-// 	return passport.authenticate('google', options, function (err, user, info ) {
-// 		// console.log( err, user, info );
-// 	})(req, res, next);
-// });
 app.get('/auth/google', function(req, res, next ) {
 	options = {
-		'scope': ['https://www.googleapis.com/auth/userinfo.email'],
-		'hd': 'nyu.edu'
+		'scope': ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
+		'hd': 'nyu.edu',
+		accessType: 'offline'
 	};
-	
-	// if( req.params );
-	// console.log( req.session );
 	if( req.session.client_id != undefined )
 	{
 		Client.findOne({clientID: req.session.client_id}, function(err, client) {
@@ -202,8 +179,6 @@ app.get('/auth/google', function(req, res, next ) {
 				{
 					req.session.gscopes = client.getScopes( 'google' );
 					options.scope = _.union( options.scope, client.getScopes( 'google' ) );
-					options.accessType = 'offline'; // we need offline access to communicate these later
-					// options.prompt = 'consent';
 				}
 			}
 						
