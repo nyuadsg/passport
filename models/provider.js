@@ -46,5 +46,18 @@ providerSchema.statics.getToken = function (provider, netID, scopes, cb) {
 	});
 }
 
+// stores only the latest token
+providerSchema.statics.store = function (info, callback) {
+	PS = this;
+
+	PS.update({
+		provider: info.provider,
+		netID: info.netID
+	}, info, {upsert: true}, function(err, prov) {
+		callback(err, prov);
+	});
+
+}
+
 
 var Provider = module.exports = mongoose.model('Provider', providerSchema);

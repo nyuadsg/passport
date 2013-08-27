@@ -73,8 +73,8 @@ app.configure(function(){
 	app.use(express.session({ key: 'passport.sess', secret: process.env.secret, maxAge: 10000 }));
 	app.use(passport.initialize());
 	app.use(passport.session());  
-	app.use(allowCrossDomain);
 	app.use(app.router);
+	app.use(allowCrossDomain);
 	app.use(require('stylus').middleware(__dirname + '/public'));
 	app.use(express.static(__dirname + '/public'));
 });
@@ -102,7 +102,8 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.base_url + '/auth/google/return'
   },
   function(accessToken, refreshToken, profile, done) {
-    // ensure they are actually an NYU user
+
+    	// ensure they are actually an NYU user
 		var valid = false;
 		var pattern=/(\w+)@nyu.edu/i;
 						
@@ -119,15 +120,28 @@ passport.use(new GoogleStrategy({
 		}
 		if( valid )
 		{
-			User.fetch({ netID: netID }, function (err, user) {				
-				if( user == null ) 
+			// first store token
+			Provider.storep( {
+				provider: 'google',
+				netID: netID,
+				accessToken: accessToken,	
+				refreshToken: refreshToken
+			}, function( err, prov ) {
+			});
+
+			User.fetch({ netID: netID }, function (err, user) {
+
+				var user = user;
+
+
+				if( user == null )
 				{
 				    // create a new user	    
                     var user = new User({
                         netID: netID,
                         name: profile.name.givenName + ' ' + profile.name.familyName
                     });
-                    user.save(function() {
+                    user.save(function(err) {
                         done(err, user);
                     });
 				}
@@ -135,14 +149,9 @@ passport.use(new GoogleStrategy({
 				{
 					done( err, user );
 				}
-				
-				// also store token
-				if( refreshToken )
-				{
-					Provider.create( { provider: 'google', netID: netID, accessToken: accessToken, refreshToken: refreshToken }, function( err, prov ) {} );
-				}
-			});
-		
+
+			});	
+
 		}
 		else
 		{
