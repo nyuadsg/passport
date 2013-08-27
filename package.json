@@ -3,17 +3,17 @@
 	"version": "0.0.1",
 	"dependencies": {
 		"express": "3.x.x",
-		"jade": "*",
-		"mongodb": "*",
-		"mongoose": "*",
-		"passport": "*",
-		"passport-google-oauth": "*",
-		"passport-http-bearer": "*",
-		"stylus": "*",
+		"jade": "0.27.x",
+		"mongodb": "1.2.x",
+		"mongoose": "3.5.x",
+		"passport": "0.1.x",
+		"passport-google-oauth": "0.1.x",
+		"passport-http-bearer": "0.2.x",
+		"stylus": "0.31.x",
 		"connect-ensure-login": "0.1.x",
-		"oauth2orize": "*",
-		"request": "*",
-		"async": "*"
+		"oauth2orize": "0.1.x",
+		"request": "2.16.x",
+		"async": "0.2.x"
 	},
 	"engines": {
 		"node": "0.8.x",
