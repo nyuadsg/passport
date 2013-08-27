@@ -19,8 +19,11 @@ If the user is a valid NYUAD user, it will return a profile such as:
 ```
 {
   "netID": "mp3255",
-  "class": 2016,
-  "school": "NYUAD"
+  "name": "Morgante Pell",
+  "groups": [
+    "nyuad2016",
+    "nyuad"
+  ]
 }
 ```
 
