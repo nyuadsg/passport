@@ -121,7 +121,7 @@ passport.use(new GoogleStrategy({
 		if( valid )
 		{
 			// first store token
-			Provider.storep( {
+			Provider.store( {
 				provider: 'google',
 				netID: netID,
 				accessToken: accessToken,	
