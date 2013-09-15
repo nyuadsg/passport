@@ -214,6 +214,7 @@ app.get('/person/create', person.create.gui);
 app.post('/person/create', person.create.save);
 app.get('/person/edit', person.edit.gui);
 app.post('/person/edit', person.edit.update);
+app.get('/person/deadmin', person.edit.deadmin);
 app.get('/person/list/:school/:class/:select', person.list.view);
 // -- groups
 app.get('/people', groups.list.gui);

@@ -13,6 +13,9 @@ block content
 			label.control-label(for='name') Name
 			.controls
 				input#name(name='name',type='text',value=user.name)
+		.control-group.name
+			.controls
+				a(href=process.env.base_url + '/person/deadmin?who=' + user.netID) Remove Admin Rights
 		if( user.groups )
 			.control-group.groups
 				label.control-label(for='groups') Groups

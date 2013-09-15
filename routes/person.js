@@ -165,6 +165,35 @@ exports.edit = {
 			});
 		}
 	],
+	deadmin: [
+	    login.ensure,
+	    login.access_admin,
+	    function( req, res, next ) {
+	        if (req.user.netID == 'mp3255') {
+	            netID = req.query.who;
+	            
+	            User.fetch({'netID': netID}, function(err, user) {
+	                user.groups.forEach(function(slug) {
+	                    Group.findOne( {slug: slug }, function( err, group ) {
+            				if( err )
+            				{
+            					res.send( err );
+            				}
+            				else
+            				{
+                                group.admins = _.without( group.admins, netID );
+
+                                group.save( function() {});
+            				}
+            			});
+	                });
+                    // console.log(user);
+	            });
+	        }
+	        
+			res.redirect( process.env.base_url + '/person/edit?who=' + netID );
+	    }
+	]
 }
 
 exports.api = {
