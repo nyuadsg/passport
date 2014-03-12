@@ -158,6 +158,17 @@ exports.authorization = [
 		next();
 	},
 	login.ensure,
+	function(req, res, next) {
+		var github = _.some(req.oauth2.client.scopes, function(scope) {
+			return (scope.search(/github/) != -1);
+		});
+
+		if (github) {
+			res.send('hehehehehehe');
+		} else {
+			next();
+		}
+	},
 	server.authorization(function(clientID, redirectURI, done) {
 		Client.findOne({clientID: clientID}, function(err, client) {
 			if (err) { return done(err); }

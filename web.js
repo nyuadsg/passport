@@ -140,7 +140,6 @@ passport.use(new GoogleStrategy({
 
 				var user = user;
 
-
 				if( user == null )
 				{
 				    // create a new user	    

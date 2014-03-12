@@ -14,7 +14,7 @@ var clientSchema = mongoose.Schema({
 
 clientSchema.methods.getScopes = function( type ) {
 	return this.model('Client').getScopes( this.scopes, type );
-}
+};
 
 clientSchema.statics.getScopes = function( all_scopes, type ) {
 	gscopes = [];
@@ -40,6 +40,6 @@ clientSchema.statics.getScopes = function( all_scopes, type ) {
 	{
 		return scopes;
 	}
-}
+};
 
 var Client = module.exports = mongoose.model('Client', clientSchema);
