@@ -42,5 +42,25 @@ To get an access token for Google, GET here: ```http://passport.sg.nyuad.org/vis
 
 This might respond with an error that the user hasn't delegated the necessary scopes from Google, in which case you should redo the authentication flow with Passport.
 
+##### Github
+You can also request authentication tokens for GitHub. First request that scope from the Passport Administrator. You can then get GitHub auth tokens from this endpoing: ```http://passport.sg.nyuad.org/visa/github/token?access_token=YOURTOKENHERE```. It will return results like this:
+```
+{
+  "access_token": "somethingsecurehere",
+  "profile": {
+    "provider": "github",
+    "id": 1627801,
+    "displayName": "Morgante Pell",
+    "username": "morgante",
+    "profileUrl": "https://github.com/morgante",
+    "emails": [
+      {
+        "value": "morgante.pell@morgante.net"
+      }
+    ]
+  }
+}
+```
+
 #### Logout
 If you provide a logout button in your application, you might consider propogating that logout action down the stack to Passport & NYU. To do so, just direct the user (with a redirect or link) to ```http://passport.sg.nyuad.org/auth/logout```.
