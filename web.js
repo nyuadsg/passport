@@ -3,7 +3,8 @@ var express = require('express')
 	, http = require('http')
 	, path = require('path')
 var passport = require('passport')
-  , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+  , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+  , GitHubStrategy = require('passport-github').Strategy;
 var routes = require('./routes')
 	, about = require('./routes/about')
 	, person = require('./routes/person')
@@ -11,6 +12,8 @@ var routes = require('./routes')
 	, providers = require('./routes/providers')
 	, oauth = require('./routes/oauth')
 	, auth = require('./routes/auth');
+
+var login = require('./login');
 
 var _ = require('./public/lib/underscore');	
 
@@ -58,7 +61,7 @@ var allowCrossDomain = function(req, res, next) {
     else {
         next();
     }
-}
+};
 
 // configure express
 app.configure(function(){
@@ -72,9 +75,13 @@ app.configure(function(){
 	app.use(express.cookieParser( process.env.secret ));
 	app.use(express.session({ key: 'passport.sess', secret: process.env.secret, maxAge: 10000 }));
 	app.use(passport.initialize());
-	app.use(passport.session());  
+	app.use(passport.session());
+	app.use(login.fake);
+
 	app.use(app.router);
 	app.use(allowCrossDomain);
+
+
 	app.use(require('stylus').middleware(__dirname + '/public'));
 	app.use(express.static(__dirname + '/public'));
 });
@@ -160,13 +167,37 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_ID,
+    clientSecret: process.env.GITHUB_SECRET,
+    callbackURL: process.env.base_url + '/auth/github/return',
+    passReqToCallback : true
+  },
+  function(req, accessToken, refreshToken, profile, done) {
+  	console.log(req.user);
+
+  	Provider.store( {
+		provider: 'github',
+		netID: req.user.netID,
+		accessToken: accessToken,	
+	}, function( err, prov ) {
+		console.log('oooh ya', err, prov);
+		// saved token asynchronously
+	});
+
+    // asynchronous verification, for effect...
+    process.nextTick(function () {
+      return done(null, req.user);
+    });
+  }
+));
+
 // all routes
 app.get('/', about.passport);
 // -- authorization flow
 app.get('/auth/start', auth.start);
 app.get('/auth/fail', auth.fail);
 app.get('/auth/nyu', auth.nyu);
-
 // --- Google
 app.get('/auth/google/return', passport.authenticate('google', {
 	successRedirect: '/auth/finish',
@@ -200,7 +231,41 @@ app.get('/auth/google', function(req, res, next ) {
 		return passport.authenticate('google', options)(req, res, next);
 	}
 } );
+// -- GitHub
+app.get('/auth/github', function(req, res, next ) {
+	options = {
+		accessType: 'offline'
+	};
+			return passport.authenticate('github', options)(req, res, next);
 
+	// if( req.session.client_id != undefined )
+	// {
+	// 	Client.findOne({clientID: req.session.client_id}, function(err, client) {
+	// 		if (err) { return done(err); }
+	// 		if( client != null )
+	// 		{
+	// 			if( client.getScopes( 'google' ).length > 0 )
+	// 			{
+	// 				req.session.gscopes = client.getScopes( 'google' );
+	// 				options.scope = _.union( options.scope, client.getScopes( 'google' ) );
+	// 			}
+	// 		}
+						
+	// 		// call passport directly with some dynamic options based on `req` and `res`
+	// 	  return passport.authenticate('google', options)(req, res, next);
+	// 	});
+	// }
+	// else
+	// {
+	// 	return passport.authenticate('google', options)(req, res, next);
+	// }
+});
+app.get('/auth/github/return', passport.authenticate('github', {
+	failureRedirect: '/auth/fail'
+}), function(req, res) {
+		res.send('hello there');
+	}
+);
 
 // finish the Google auth loop
 app.get('/auth/finish', auth.finish);

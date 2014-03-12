@@ -1,5 +1,21 @@
 var User = require('./models/user');
 
+exports.fake = function(req, res, next) {
+	if (req.user !== undefined) {
+		next();
+	} else if( process.env.DEV_USER !== undefined && process.env.DEV_USER != 'none' )
+	{
+		User.fetch( process.env.DEV_USER, function( err, user ) {
+			console.log('faking user', user.netID);
+			req.user = user;
+			
+			next();
+		});
+	} else {
+		next();
+	}
+};
+
 exports.ensure = function(req, res, next) {
 	
 	if( process.env.DEV_USER != undefined && process.env.DEV_USER != 'none' )
