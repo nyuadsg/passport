@@ -169,6 +169,23 @@ exports.authorization = [
 				return done(null, client, redirectURI);
 		});
 	}),
+	function(req, res, next) {
+		var github = _.some(req.oauth2.client.scopes, function(scope) {
+			return (scope.search(/github/) != -1);
+		});
+
+		if (github) {
+			Provider.findOne({"provider": "github", "netID": req.user.netID}, function(err, provider) {
+				if (provider === null) {
+					res.redirect(  process.env.base_url + '/auth/github?next=' + encodeURIComponent( process.env.base_url + req.url ) );
+				} else {
+					next();
+				}
+			});
+		} else {
+			next();
+		}
+	},
 	function(req, res, next){
 		fileScopesForPickup( req );
 		
@@ -201,23 +218,6 @@ exports.authorization = [
 			next();
 			
 		});
-	},
-	function(req, res, next) {
-		var github = _.some(req.oauth2.client.scopes, function(scope) {
-			return (scope.search(/github/) != -1);
-		});
-
-		if (github) {
-			Provider.findOne({"provider": "github", "netID": req.user.netID}, function(err, provider) {
-				if (provider === null) {
-					res.redirect(  process.env.base_url + '/auth/github?next=' + encodeURIComponent( process.env.base_url + req.url ) );
-				} else {
-					next();
-				}
-			});
-		} else {
-			next();
-		}
 	},
 	function(req, res, next){
 		// scopes = req.oauth2.client.scopes

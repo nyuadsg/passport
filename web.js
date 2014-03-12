@@ -178,7 +178,8 @@ passport.use(new GitHubStrategy({
   	Provider.store( {
 		provider: 'github',
 		netID: req.user.netID,
-		accessToken: accessToken,	
+		accessToken: accessToken,
+		profile: profile
 	}, function( err, prov ) {
 		console.log('oooh ya', err, prov);
 		// saved token asynchronously

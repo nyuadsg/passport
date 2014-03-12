@@ -5,10 +5,30 @@ var request = require('request');
 var providerSchema = mongoose.Schema({
 	provider: String,
 	netID: String,
+	profile: mongoose.Schema.Types.Mixed,
 	accessToken: String,
 	refreshToken: String,
 	scopes: []
 });
+
+providerSchema.statics.getInfo = function (provider, netID, cb) {
+	PS = this;
+	
+	PS.findOne( {provider: provider, netID: netID }).exec( function( err, token ) {
+		if( err )
+		{
+			cb( err, null )
+		}
+		else if( token == null )
+		{
+			cb( err, null )
+		}
+		else
+		{	
+			cb(null, token);
+		}
+	});
+}
 
 providerSchema.statics.getToken = function (provider, netID, scopes, cb) {
 	PS = this;

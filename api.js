@@ -9,7 +9,8 @@ var scopes = {
 	'user.me.netID': 'Know your netID',
 	'user.me.name': 'Know your name',
 	'user.me.groups': 'Manage groups you are in',
-	'groups.manage': 'Manage group memberships'
+	'groups.manage': 'Manage group memberships',
+	'github': 'See your public GitHub information'
 }
 
 passport.use(new BearerStrategy(
