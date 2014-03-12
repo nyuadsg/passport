@@ -16,6 +16,7 @@ var User = require('../models/user');
 var AuthCode = require('../models/authcode');
 var Token = require('../models/token');
 var Client = require('../models/clients');
+var Provider = require('../models/provider');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -158,17 +159,6 @@ exports.authorization = [
 		next();
 	},
 	login.ensure,
-	function(req, res, next) {
-		var github = _.some(req.oauth2.client.scopes, function(scope) {
-			return (scope.search(/github/) != -1);
-		});
-
-		if (github) {
-			res.send('hehehehehehe');
-		} else {
-			next();
-		}
-	},
 	server.authorization(function(clientID, redirectURI, done) {
 		Client.findOne({clientID: clientID}, function(err, client) {
 			if (err) { return done(err); }
@@ -211,6 +201,23 @@ exports.authorization = [
 			next();
 			
 		});
+	},
+	function(req, res, next) {
+		var github = _.some(req.oauth2.client.scopes, function(scope) {
+			return (scope.search(/github/) != -1);
+		});
+
+		if (github) {
+			Provider.findOne({"provider": "github", "netID": req.user.netID}, function(err, provider) {
+				if (provider === null) {
+					res.redirect(  process.env.base_url + '/auth/github?next=' + encodeURIComponent( process.env.base_url + req.url ) );
+				} else {
+					next();
+				}
+			});
+		} else {
+			next();
+		}
 	},
 	function(req, res, next){
 		// scopes = req.oauth2.client.scopes

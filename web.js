@@ -232,10 +232,16 @@ app.get('/auth/google', function(req, res, next ) {
 } );
 // -- GitHub
 app.get('/auth/github', function(req, res, next ) {
+	if( req.query.next != undefined )
+	{
+		// set where they should continue onto
+		req.session.after_github = req.query.next;
+	}
+
 	options = {
 		accessType: 'offline'
 	};
-			return passport.authenticate('github', options)(req, res, next);
+	return passport.authenticate('github', options)(req, res, next);
 
 	// if( req.session.client_id != undefined )
 	// {
@@ -262,7 +268,12 @@ app.get('/auth/github', function(req, res, next ) {
 app.get('/auth/github/return', passport.authenticate('github', {
 	failureRedirect: '/auth/fail'
 }), function(req, res) {
-		res.send('hello there');
+		if( req.session.after_github !== undefined ) {
+			res.redirect( req.session.after_github );
+		} else {
+			// otherwise, send home
+			res.redirect( process.env.base_url );
+		}
 	}
 );
 
