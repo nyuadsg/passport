@@ -4,8 +4,8 @@
   "dependencies": {
     "express": "3.x.x",
     "jade": "0.27.x",
-    "mongodb": "1.2.x",
-    "mongoose": "3.5.x",
+    "mongodb": "^2.0.47",
+    "mongoose": "^4.2.3",
     "passport": "0.1.x",
     "passport-google-oauth": "0.1.x",
     "passport-http-bearer": "0.2.x",
