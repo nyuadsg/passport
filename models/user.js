@@ -29,6 +29,15 @@ userSchema.methods.isIn = function( groupString ) {
 	return ( this.groups.indexOf( groupString ) != -1 );
 }
 
+userSchema.methods.can = function( permission ) {
+	if (permission === 'access_groups') {
+		if (this.isIn('see-groups') || this.isIn('admins')) {
+			return true;
+		}
+	}
+	return
+}
+
 userSchema.statics.fetch = function( where, cb ) {
 	if( typeof where == 'string' )
 	{

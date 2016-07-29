@@ -2,22 +2,26 @@
   "name": "passport",
   "version": "0.0.1",
   "dependencies": {
+    "async": "0.2.x",
+    "connect-ensure-login": "0.1.x",
     "express": "3.x.x",
     "jade": "0.27.x",
     "mongodb": "^2.0.47",
     "mongoose": "^4.2.3",
+    "oauth2orize": "0.1.x",
     "passport": "0.1.x",
+    "passport-github": "~0.1.5",
     "passport-google-oauth": "0.1.x",
     "passport-http-bearer": "0.2.x",
-    "stylus": "0.31.x",
-    "connect-ensure-login": "0.1.x",
-    "oauth2orize": "0.1.x",
     "request": "2.16.x",
-    "async": "0.2.x",
-    "passport-github": "~0.1.5"
+    "stylus": "0.31.x",
+    "supervisor": "^0.11.0"
   },
   "engines": {
     "node": "^0.8.x",
     "npm": "^1.1.x"
+  },
+  "scripts": {
+    "dev": "supervisor web.js"
   }
 }

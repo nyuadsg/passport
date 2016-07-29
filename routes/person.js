@@ -90,7 +90,13 @@ exports.me = function( req, res ) {
 	}
 	else
 	{
-		res.send( 'Your netID is ' + req.user.netID + ' and you are in the class of ' + req.user.class );
+		res.render( 'profile', {
+			title: 'Your Profile',
+			user: req.user,
+			access: {
+				access_groups: req.user.can('access_groups')
+			}
+		});
 	}
 }
 
