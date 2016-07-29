@@ -63,7 +63,7 @@ exports.access_admin = [
 		{
 			res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + req.url );
 		}	
-		else if( !req.user.isIn( 'see-groups' ) && !req.user.isIn( 'admins' ) )
+		else if( !req.user.can('access_groups') )
 		{			
 			res.redirect(  process.env.base_url );
 		}
