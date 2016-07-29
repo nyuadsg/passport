@@ -83,13 +83,9 @@ exports.list = {
 	]
 }
 
-exports.me = function( req, res ) {
-	if( req.user == undefined )
-	{
-		res.redirect(  process.env.base_url + '/auth/start?next=' + process.env.base_url + '/person/me' );
-	}
-	else
-	{
+exports.me = [
+	login.ensure,
+	function( req, res ) {
 		res.render( 'profile', {
 			title: 'Your Profile',
 			user: req.user,
@@ -98,7 +94,7 @@ exports.me = function( req, res ) {
 			}
 		});
 	}
-}
+]
 
 exports.create = {
 	gui: [
