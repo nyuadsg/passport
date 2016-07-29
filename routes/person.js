@@ -135,8 +135,10 @@ exports.edit = {
 				{ 'name': { '$regex': term + '.*', $options: 'i' } },
 				{ 'netID': { '$regex': term + '.*', $options: 'i' } },
 			] };
+
+			User.fetch( where, function( err, user ) {	
+				console.log("user", user);
 			
-			User.fetch( where, function( err, user ) {				
 				res.render( 'edit_user', {
 					title: 'Edit User',
 					action: process.env.base_url + '/person/edit?who=' + user.netID,

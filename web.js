@@ -97,7 +97,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-	User.findOne({netID: id}, function(err, user) {
+	User.fetch({netID: id}, function(err, user) {
 		done(err, user);
 	});
 });
